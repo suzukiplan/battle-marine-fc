@@ -50,8 +50,24 @@ palettes:
     .byte   $00, $00, $00, $00 ; 未使用
     .byte   $00, $00, $00, $00 ; 未使用
 
+playerY_table:
+    .byte   $42, $42, $42, $42, $42, $42, $42, $42
+    .byte   $43, $43, $43, $43, $43, $43, $43, $43
+    .byte   $44, $44, $44, $44, $44, $44, $44, $44
+    .byte   $43, $43, $43, $43, $43, $43, $43, $43
+
 .org $0000
 v_counter:  .byte   $00     ; 00: フレームカウンタ
+v_playerX:  .byte   $00     ; 01: player X
+v_playerY:  .byte   $00     ; 02: player Y
+
+.org $0300
+sp_playerY: .byte   $00                 ; 00 - player0
+sp_playerT: .byte   $00
+sp_playerA: .byte   $00
+sp_playerX: .byte   $00
+sp_player1: .byte   $00, $00, $00, $00  ; 01 - player1
+sp_player2: .byte   $00, $00, $00, $00  ; 02 - player2
 
 .segment "VECINFO"
     .word   $0000
@@ -60,5 +76,5 @@ v_counter:  .byte   $00     ; 00: フレームカウンタ
 
 ; pattern table
 .segment "CHARS"
-    .incbin "bmarine-bg.chr"
     .incbin "bmarine-sprite.chr"
+    .incbin "bmarine-bg.chr"

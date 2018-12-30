@@ -21,6 +21,32 @@ setup_clear_ram:
     inx
     bne setup_clear_ram
 
+    ; プレイヤの座標初期化
+    lda #$74
+    sta v_playerX
+    sta sp_playerX
+    clc
+    adc #$08
+    sta sp_playerX + 4
+    clc
+    adc #$08
+    sta sp_playerX + 8
+    lda playerY_table
+    sta v_playerY
+    sta sp_playerY
+    sta sp_playerY + 4
+    sta sp_playerY + 8
+    lda #$02
+    sta sp_playerT
+    lda #$04
+    sta sp_playerT + 4
+    lda #$06
+    sta sp_playerT + 8
+    lda #%00100000
+    sta sp_playerA
+    sta sp_playerA + 4
+    sta sp_playerA + 8
+
     ; 属性テーブルを初期化
     lda #$23
     sta $2006
@@ -112,7 +138,7 @@ setup_draw_bg5:
     ; bit2: address addition (0=+1, 1=+32)
     ; bit1~0: main screen (0=$2000, 1=$2400, 2=$2800, 3=$2c00)
     ;     76543210
-    lda #%00101000
+    lda #%00110000
     sta $2000
     ; bit7: red
     ; bit6: green
