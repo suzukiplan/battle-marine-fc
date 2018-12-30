@@ -51,7 +51,7 @@ setup_attr_table2:
     ldx #$20
     lda #$00
 setup_draw_bg1_1:
-    ldy #$0b
+    ldy #$0a
 setup_draw_bg1_2:
     sta $2007
     dey
@@ -68,15 +68,16 @@ setup_draw_bg2:
     bne setup_draw_bg2
 
     ; 海中を描画
-    ldx #$80
     lda #$0b
-setup_draw_bg3:
+    ldx #$11
+setup_draw_bg3_1:
+    ldy #$20
+setup_draw_bg3_2:
     sta $2007
-    sta $2007
-    sta $2007
-    sta $2007
+    dey
+    bne setup_draw_bg3_2
     dex
-    bne setup_draw_bg3
+    bne setup_draw_bg3_1
 
     ; 地表を描画
     ldx #$10
