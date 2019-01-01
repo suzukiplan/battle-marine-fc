@@ -12,9 +12,16 @@ sub_movePlayer:
     lda $4016   ; B 
     and #$01
     ora v_fire
-    beq movePlayer_noFire
-
+    bne movePlayer_fire
+    lda #$00
+    sta v_push
+    jmp movePlayer_noFire
+movePlayer_fire:
     ; ショットを発射
+    lda v_push
+    bne movePlayer_noFire
+    lda #$01
+    sta v_push
     lda v_shotF
     bne movePlayer_noFire ; 発射中（連射不可）
     lda #$01

@@ -115,7 +115,8 @@ v_rand_idx: .byte   $00     ; 4a: 乱数index
 v_enemy_idx:.byte   $00     ; 4b: 敵index
 v_work:     .byte   $00, $00, $00, $00 ; 4c-4f: 汎用ワーク変数
 v_sb_exist: .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 50-57: 潜水艦のY座標重複防止フラグ
-v_et_idx: .byte   $00       ; 58: 敵テーブルのインデックス
+v_et_idx:   .byte   $00     ; 58: 敵テーブルのインデックス
+v_push:     .byte   $00     ; 59: ボタン押し込みフラグ
 
 .org $0300
 sp_playerY: .byte   $00                 ; 00 - player0
