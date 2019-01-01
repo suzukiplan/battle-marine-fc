@@ -31,7 +31,7 @@ setup_clear_ram:
     clc
     adc #$08
     sta sp_playerX + 8
-    lda playerY_table
+    lda wave_table
     sta v_playerY
     sta sp_playerY
     sta sp_playerY + 4
@@ -42,6 +42,7 @@ setup_clear_ram:
     sta sp_playerT + 4
     lda #$06
     sta sp_playerT + 8
+    ;     VHP---CC
     lda #%00100000
     sta sp_playerA
     sta sp_playerA + 4

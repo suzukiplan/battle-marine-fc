@@ -1,5 +1,8 @@
 IMAGES = bmarine-sprite.chr bmarine-bg.chr
 SOURCES = \
+	src/newEnemy.asm\
+	src/moveEnemy.asm\
+	src/movePlayer.asm\
 	src/03mainloop.asm\
 	src/02setup.asm\
 	src/01title.asm\
