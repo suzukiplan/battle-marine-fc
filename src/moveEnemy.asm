@@ -288,10 +288,10 @@ moveEnemy_fire_ok:
     adc #$08
     sta v_enemy_x, y
     sta v_work + 0 ; 後でスプライトに設定するために一時記憶
-    ; Y座標 = 潜水艦-16
+    ; Y座標 = 潜水艦-8
     lda v_enemy_y, x
     clc
-    sbc #$10
+    sbc #$08
     sta v_enemy_y, y
     sta v_work + 1 ; 後でスプライトに設定するために一時記憶
     ; 使用するフラグを初期化
@@ -309,6 +309,19 @@ moveEnemy_fire_ok:
     sta sp_enemyY, y
     lda #%00000010
     sta sp_enemyA, y
+    ; play SE (矩形波2を使う)
+    ;     ddcevvvv (d=duty, c=再生時間カウンタ, e=effect, v=volume)
+    lda #%00011111
+    sta $4004
+    ;     csssmrrr (c=周波数変化, s=speed, m=method, r=range)
+    lda #%11111010
+    sta $4005
+    ;     kkkkkkkk (k=音程周波数の下位8bit)
+    lda #%11100000
+    sta $4006
+    ;     tttttkkk (t=再生時間, k=音程周波数の上位3bit)
+    lda #%10101001
+    sta $4007
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
