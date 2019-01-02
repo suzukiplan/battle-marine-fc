@@ -54,7 +54,7 @@ setup_clear_ram:
     lda #$c0
     sta $2006
 
-    lda #%00000101
+    lda #%00000000
     ldx #$10
 setup_attr_table1:
     sta $2007
@@ -124,6 +124,20 @@ setup_draw_bg5:
     sta $2007
     dex
     bne setup_draw_bg5
+
+    ; スコアを描画
+    lda #$20
+    sta $2006
+    lda #$23
+    sta $2006
+    ldy #26
+    ldx #$00
+setup_draw_score:
+    lda string_score, x
+    sta $2007
+    inx
+    dey
+    bne setup_draw_score
 
     ; scroll setting
     lda #$00

@@ -46,6 +46,10 @@ copy_pal:
 .include "moveEnemy.asm"
 .endproc
 
+string_score:
+    ;        12345678901234567890123456
+    .byte   "SC       00    HI       00"
+
 palettes:
     ; BG
     .byte   $0f, $00, $10, $20 ; 白色のグラデーション (mask, dark, middle, light)
