@@ -1,5 +1,5 @@
 sub_newEnemy:
-    ; 敵のパターン情報を記憶
+    ; 敵のパターン情報を取得（追加されなくてもテーブルを回すことで出現に変化をつける）
     ldx v_et_idx
     inx
     txa
@@ -11,20 +11,15 @@ sub_newEnemy:
     ; インデックスを加算
     lda v_enemy_idx
     clc
-    adc #$08
-    and #$3f
+    adc #$04
+    and #$1f
     sta v_enemy_idx
     tax
+    ; フラグが0でなければ出現をキャンセル
     lda v_enemy_f, x
     beq newEnemy_ok
     rts
 newEnemy_ok:
-    ; 使用するスプライトindex (敵index * 1.5) をv_enemy_siに格納しておく
-    txa
-    ror
-    clc
-    adc v_enemy_idx
-    sta v_enemy_si, x
     lda v_work
     cmp #$01
     bne newEnemy_not1
@@ -39,72 +34,62 @@ newEnemy1:
     sta v_enemy_f, x
     lda #$00
     sta v_enemy_x, x
-    ldy v_enemy_si, x
-    sta sp_enemyX, y
+    sta sp_enemyX0, x
     clc
     adc #$08
-    sta sp_enemyX + 4, y
-    clc
+    sta sp_enemyX1, x
     adc #$08
-    sta sp_enemyX + 8, y
+    sta sp_enemyX2, x
     ; Y座標をランダムで決定
-    txa
-    pha
-    ldx v_rand_idx
-    inx
-    stx v_rand_idx
-    lda rand_table, x
+    ldy v_rand_idx
+    iny
+    sty v_rand_idx
+    lda rand_table, y
     and #$07
     cmp #$00
-    beq newEnemy1_cancel
+    beq newEnemy1_cancel ; 最上位は鳥専用ゾーンなのでキャンセル
     cmp #$07
-    beq newEnemy1_cancel
+    beq newEnemy1_cancel ; 最下位は蟹専用ゾーンなのでキャンセル
     sta v_work + 1
-    tax
-    pha
-    lda v_sb_exist, x
+    tay
+    lda v_sb_exist, y
     beq newEnemy1_ok
-    ; 同じY座標に既に潜水艦が居るので登場をキャンセル
-    pla
+    ; 同じY座標に既に潜水艦（か魚）が居るので登場をキャンセル
 newEnemy1_cancel:
-    pla
-    tax
     lda #$00
     sta v_enemy_f, x
     rts
 newEnemy1_ok:
     lda #$01
-    sta v_sb_exist, x
-    pla
+    sta v_sb_exist, y
+    ; y = 深度(1~7) * 16(4shift) + $60
+    lda v_work + 1
     rol
     rol
     rol
     rol
     clc
     adc #$60
-    sta v_work
-    pla
-    tax
-    lda v_work + 1
-    sta v_enemy_i1, x
-    lda v_work
     sta v_enemy_y, x
-    sta sp_enemyY, y
-    sta sp_enemyY + 4, y
-    sta sp_enemyY + 8, y
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    sta sp_enemyY2, x
+    ; i1 に 深度(1~7) を記憶しておく
+    lda v_work + 1
+    sta v_enemy_i + 1, x
     lda #$20
-    sta sp_enemyT, y
+    sta sp_enemyT0, x
     lda #$28
-    sta sp_enemyT + 4, y
+    sta sp_enemyT1, x
     lda #$2a
-    sta sp_enemyT + 8, y
+    sta sp_enemyT2, x
     lda #$00
-    sta sp_enemyA, y
-    sta sp_enemyA + 4, y
-    sta sp_enemyA + 8, y
-    sta v_enemy_i0, x
-    sta v_enemy_i2, x
-    sta v_enemy_i3, x
+    sta sp_enemyA0, x
+    sta sp_enemyA1, x
+    sta sp_enemyA2, x
+    sta v_enemy_i + 0, x
+    sta v_enemy_i + 2, x
+    sta v_enemy_i + 3, x
     rts
 
 ;------------------------------------------------------------
@@ -114,69 +99,60 @@ newEnemy2:
     sta v_enemy_f, x
     lda #232
     sta v_enemy_x, x
-    ldy v_enemy_si, x
-    sta sp_enemyX, y
+    sta sp_enemyX0, x
     clc
     adc #$08
-    sta sp_enemyX + 4, y
+    sta sp_enemyX1, x
     adc #$08
-    sta sp_enemyX + 8, y
+    sta sp_enemyX2, x
     ; Y座標をランダムで決定
-    txa
-    pha
-    ldx v_rand_idx
-    inx
-    stx v_rand_idx
-    lda rand_table, x
+    ldy v_rand_idx
+    iny
+    sty v_rand_idx
+    lda rand_table, y
     and #$07
     cmp #$00
-    beq newEnemy2_cancel
+    beq newEnemy2_cancel ; 最上位は鳥専用ゾーンなのでキャンセル
     cmp #$07
-    beq newEnemy2_cancel
+    beq newEnemy2_cancel ; 最下位は蟹専用ゾーンなのでキャンセル
     sta v_work + 1
-    tax
-    pha
-    lda v_sb_exist, x
+    tay
+    lda v_sb_exist, y
     beq newEnemy2_ok
-    ; 同じY座標に既に潜水艦が居るので登場をキャンセル
-    pla
+    ; 同じY座標に既に潜水艦（か魚）が居るので登場をキャンセル
 newEnemy2_cancel:
-    pla
-    tax
     lda #$00
     sta v_enemy_f, x
     rts
 newEnemy2_ok:
     lda #$01
-    sta v_sb_exist, x
-    pla
+    sta v_sb_exist, y
+    ; y = 深度(1~7) * 16(4shift) + $60
+    lda v_work + 1
     rol
     rol
     rol
     rol
     clc
     adc #$60
-    sta v_work
-    pla
-    tax
-    lda v_work + 1
-    sta v_enemy_i1, x
-    lda v_work
     sta v_enemy_y, x
-    sta sp_enemyY, y
-    sta sp_enemyY + 4, y
-    sta sp_enemyY + 8, y
-    lda #$30
-    sta sp_enemyT + 8, y
-    lda #$38
-    sta sp_enemyT + 4, y
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    sta sp_enemyY2, x
+    ; i1 に 深度(1~7) を記憶しておく
+    lda v_work + 1
+    sta v_enemy_i + 1, x
     lda #$3a
-    sta sp_enemyT, y
+    sta sp_enemyT0, x
+    lda #$38
+    sta sp_enemyT1, x
+    lda #$30
+    sta sp_enemyT2, x
     lda #$00
-    sta sp_enemyA, y
-    sta sp_enemyA + 4, y
-    sta sp_enemyA + 8, y
-    sta v_enemy_i0, x
-    sta v_enemy_i2, x
-    sta v_enemy_i3, x
+    sta sp_enemyA0, x
+    sta sp_enemyA1, x
+    sta sp_enemyA2, x
+    sta v_enemy_i + 0, x
+    sta v_enemy_i + 2, x
+    sta v_enemy_i + 3, x
     rts

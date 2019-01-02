@@ -100,21 +100,25 @@ v_shotF:    .byte   $00     ; 06: ショットフラグ
 v_shotX:    .byte   $00     ; 07: ショットX
 v_shotY:    .byte   $00     ; 08: ショットY
 v_dust:     .byte   $00     ; 09: 粉塵フラグ
-v_enemy_f: .byte   $00      ; 0a: enemy0 - flag & type
-v_enemy_x: .byte   $00      ; 0b: enemy0 - x
-v_enemy_y: .byte   $00      ; 0c: enemy0 - y
-v_enemy_si:.byte   $00      ; 0d: enemy0 - sprite index
-v_enemy_i0:.byte   $00      ; 0e: enemy0 - var(0)
-v_enemy_i1:.byte   $00      ; 0f: enemy0 - var(1)
-v_enemy_i2:.byte   $00      ; 10: enemy0 - var(2)
-v_enemy_i3:.byte   $00      ; 11: enemy0 - var(3)
-v_enemy1:   .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 12-19: enemy1
-v_enemy2:   .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 1a-21: enemy2
-v_enemy3:   .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 22-29: enemy3
-v_enemy4:   .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 2a-31: enemy4
-v_enemy5:   .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 32-39: enemy5
-v_enemy6:   .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 3a-41: enemy6
-v_enemy7:   .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 42-49: enemy7
+v_enemy_f:  .byte   $00     ; 0a: enemy0 - flag & type
+v_enemy_x:  .byte   $00     ; 0b: enemy0 - x
+v_enemy_y:  .byte   $00     ; 0c: enemy0 - y
+v_enemy_si: .byte   $00     ; 0d: enemy0 - sprite index
+v_enemy1:   .byte   $00, $00, $00, $00
+v_enemy2:   .byte   $00, $00, $00, $00
+v_enemy3:   .byte   $00, $00, $00, $00
+v_enemy4:   .byte   $00, $00, $00, $00
+v_enemy5:   .byte   $00, $00, $00, $00
+v_enemy6:   .byte   $00, $00, $00, $00
+v_enemy7:   .byte   $00, $00, $00, $00
+v_enemy_i:  .byte   $00, $00, $00, $00
+v_enemy1_i: .byte   $00, $00, $00, $00
+v_enemy2_i: .byte   $00, $00, $00, $00
+v_enemy3_i: .byte   $00, $00, $00, $00
+v_enemy4_i: .byte   $00, $00, $00, $00
+v_enemy5_i: .byte   $00, $00, $00, $00
+v_enemy6_i: .byte   $00, $00, $00, $00
+v_enemy7_i: .byte   $00, $00, $00, $00
 v_rand_idx: .byte   $00     ; 4a: 乱数index
 v_enemy_idx:.byte   $00     ; 4b: 敵index
 v_work:     .byte   $00, $00, $00, $00 ; 4c-4f: 汎用ワーク変数
@@ -138,33 +142,39 @@ sp_dustT:   .byte   $00
 sp_dustA:   .byte   $00
 sp_dustX:   .byte   $00
 sp_dust1:   .byte   $00, $00, $00, $00  ; 05 - dust1
-sp_enemyY:  .byte   $00                 ; 06 - enemy0
-sp_enemyT:  .byte   $00
-sp_enemyA:  .byte   $00
-sp_enemyX:  .byte   $00
-sp_enemy0_1:.byte   $00, $00, $00, $00  ; 07 - enemy0(1)
-sp_enemy0_2:.byte   $00, $00, $00, $00  ; 08 - enemy0(2)
-sp_enemy1_0:.byte   $00, $00, $00, $00  ; 09 - enemy1(0)
-sp_enemy1_1:.byte   $00, $00, $00, $00  ; 10 - enemy1(1)
-sp_enemy1_2:.byte   $00, $00, $00, $00  ; 11 - enemy1(2)
-sp_enemy2_0:.byte   $00, $00, $00, $00  ; 12 - enemy2(0)
-sp_enemy2_1:.byte   $00, $00, $00, $00  ; 13 - enemy2(1)
-sp_enemy2_2:.byte   $00, $00, $00, $00  ; 14 - enemy2(2)
-sp_enemy3_0:.byte   $00, $00, $00, $00  ; 15 - enemy3(0)
-sp_enemy3_1:.byte   $00, $00, $00, $00  ; 16 - enemy3(1)
-sp_enemy3_2:.byte   $00, $00, $00, $00  ; 17 - enemy3(2)
-sp_enemy4_0:.byte   $00, $00, $00, $00  ; 18 - enemy4(0)
-sp_enemy4_1:.byte   $00, $00, $00, $00  ; 19 - enemy4(1)
-sp_enemy4_2:.byte   $00, $00, $00, $00  ; 20 - enemy4(2)
-sp_enemy5_0:.byte   $00, $00, $00, $00  ; 21 - enemy5(0)
-sp_enemy5_1:.byte   $00, $00, $00, $00  ; 22 - enemy5(1)
-sp_enemy5_2:.byte   $00, $00, $00, $00  ; 23 - enemy5(2)
-sp_enemy6_0:.byte   $00, $00, $00, $00  ; 24 - enemy6(0)
-sp_enemy6_1:.byte   $00, $00, $00, $00  ; 25 - enemy6(1)
-sp_enemy6_2:.byte   $00, $00, $00, $00  ; 26 - enemy6(2)
-sp_enemy7_0:.byte   $00, $00, $00, $00  ; 27 - enemy7(0)
-sp_enemy7_1:.byte   $00, $00, $00, $00  ; 28 - enemy7(1)
-sp_enemy7_2:.byte   $00, $00, $00, $00  ; 29 - enemy7(2)
+sp_enemyY0:  .byte  $00                 ; 06 - enemy0(0)
+sp_enemyT0:  .byte  $00
+sp_enemyA0:  .byte  $00
+sp_enemyX0:  .byte  $00
+sp_enemy1_0:.byte   $00, $00, $00, $00  ; 07 - enemy1(0)
+sp_enemy2_0:.byte   $00, $00, $00, $00  ; 08 - enemy2(0)
+sp_enemy3_0:.byte   $00, $00, $00, $00  ; 09 - enemy3(0)
+sp_enemy4_0:.byte   $00, $00, $00, $00  ; 0a - enemy4(0)
+sp_enemy5_0:.byte   $00, $00, $00, $00  ; 0b - enemy5(0)
+sp_enemy6_0:.byte   $00, $00, $00, $00  ; 0c - enemy6(0)
+sp_enemy7_0:.byte   $00, $00, $00, $00  ; 0d - enemy7(0)
+sp_enemyY1: .byte   $00                 ; 0e - enemy0(1)
+sp_enemyT1: .byte   $00
+sp_enemyA1: .byte   $00
+sp_enemyX1: .byte   $00
+            .byte   $00, $00, $00, $00  ; 0f - enemy1(1)
+            .byte   $00, $00, $00, $00  ; 10 - enemy2(1)
+            .byte   $00, $00, $00, $00  ; 11 - enemy3(1)
+            .byte   $00, $00, $00, $00  ; 12 - enemy4(1)
+            .byte   $00, $00, $00, $00  ; 13 - enemy5(1)
+            .byte   $00, $00, $00, $00  ; 14 - enemy6(1)
+            .byte   $00, $00, $00, $00  ; 15 - enemy7(1)
+sp_enemyY2: .byte   $00                 ; 16 - enemy0(2)
+sp_enemyT2: .byte   $00
+sp_enemyA2: .byte   $00
+sp_enemyX2: .byte   $00
+            .byte   $00, $00, $00, $00  ; 17 - enemy0(2)
+            .byte   $00, $00, $00, $00  ; 18 - enemy2(2)
+            .byte   $00, $00, $00, $00  ; 19 - enemy3(2)
+            .byte   $00, $00, $00, $00  ; 1a - enemy4(2)
+            .byte   $00, $00, $00, $00  ; 1b - enemy5(2)
+            .byte   $00, $00, $00, $00  ; 1c - enemy6(2)
+            .byte   $00, $00, $00, $00  ; 1d - enemy7(2)
 
 .segment "VECINFO"
     .word   $0000
