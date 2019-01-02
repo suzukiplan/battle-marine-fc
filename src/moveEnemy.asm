@@ -337,12 +337,59 @@ moveEnemy3_notSpeedUp:
     clc
     adc #$0a
     sta sp_enemyT0, x
+    ; ショットとの当たり判定
+    lda v_shotF
+    beq moveEnemy3_noHit
+    lda v_shotY
+    cmp v_enemy_y, x
+    bcs moveEnemy3_noHit
+    adc #$10
+    cmp v_enemy_y, x
+    bcc moveEnemy3_noHit
+    lda v_shotX
+    adc #$07
+    cmp v_enemy_x, x
+    bcc moveEnemy3_noHit
+    lda v_enemy_x, x
+    adc #$07
+    cmp v_shotX
+    bcc moveEnemy3_noHit
+    jmp moveEnemy3_destruct
+moveEnemy3_noHit:
     jmp moveEnemy_next
 moveEnemy3_erase:
     lda #$00
     sta v_enemy_f, x
     sta sp_enemyT0, x
     sta sp_enemyY0, x
+    jmp moveEnemy_next
+moveEnemy3_destruct:
+    ; 爆発
+    lda #$00
+    sta v_shotF
+    sta sp_shotT
+    sta sp_shotY
+    lda #$ff
+    sta v_enemy_f, x
+    lda v_enemy_x, x
+    clc
+    sbc #$04
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    clc
+    adc #$08
+    sta sp_enemyX1, x
+    lda v_enemy_y, x
+    sta sp_enemyY1, x
+    lda #$00
+    sta v_enemy_i + 0, x
+    lda #$01
+    sta sp_enemyA0, x
+    sta sp_enemyA1, x
+    lda #$40
+    sta sp_enemyT0, x
+    lda #$50
+    sta sp_enemyT1, x
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
