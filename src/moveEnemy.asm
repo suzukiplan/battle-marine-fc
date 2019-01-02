@@ -12,6 +12,10 @@ moveEnemy_not1:
     bne moveEnemy_not2
     jmp moveEnemy2
 moveEnemy_not2:
+    cmp #$03
+    bne moveEnemy_not3
+    jmp moveEnemy3
+moveEnemy_not3:
     jmp moveEnemyFF
 moveEnemy_next:
     txa
@@ -88,7 +92,19 @@ moveEnemy1_erase:
     sta sp_enemyY + 8, y
     ldy v_enemy_i1, x
     sta v_sb_exist, y
+    jmp moveEnemy_next
 moveEnemy1_noHit:
+    ; 自機が射程に居る場合は魚雷を発射
+    lda v_enemy_x, x
+    adc #24
+    cmp v_playerX
+    bcc moveEnemy1_noFire
+    lda v_playerX
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy1_noFire
+    jmp moveEnemy_fire
+moveEnemy1_noFire:
     jmp moveEnemy_next
 moveEnemy1_destruct:
     ; 爆発
@@ -188,7 +204,19 @@ moveEnemy2_erase:
     sta sp_enemyY + 8, y
     ldy v_enemy_i1, x
     sta v_sb_exist, y
+    jmp moveEnemy_next
 moveEnemy2_noHit:
+    ; 自機が射程に居る場合は魚雷を発射
+    lda v_enemy_x, x
+    adc #24
+    cmp v_playerX
+    bcc moveEnemy2_noFire
+    lda v_playerX
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy2_noFire
+    jmp moveEnemy_fire
+moveEnemy2_noFire:
     jmp moveEnemy_next
 moveEnemy2_destruct:
     ; 爆発
@@ -220,6 +248,106 @@ moveEnemy2_destruct:
     ldy v_enemy_i1, x
     lda #$00
     sta v_sb_exist, y
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
+; 潜水艦から魚雷を発射 (xが発射元の潜水艦のindexでa/yを自由に使用可能)
+;------------------------------------------------------------
+moveEnemy_fire:
+    ldy v_enemy_i2, x
+    beq moveEnemy_fire_start
+    dey
+    sty v_enemy_i2, x
+    jmp moveEnemy_next
+moveEnemy_fire_start:
+    ; 発射抑止を設定
+    lda #$04
+    sta v_enemy_i2, x
+    ; インデックスを加算
+    lda v_enemy_idx
+    clc
+    adc #$08
+    and #$3f
+    sta v_enemy_idx
+    tay
+    lda v_enemy_f, y
+    beq moveEnemy_fire_ok
+    jmp moveEnemy_next
+moveEnemy_fire_ok:
+    lda #$03
+    sta v_enemy_f, y
+    ; 使用するスプライトindex (敵index * 1.5) をv_enemy_siに格納しておく
+    tya
+    ror
+    clc
+    adc v_enemy_idx
+    sta v_enemy_si, y
+    ; X座標 = 潜水艦+8
+    lda v_enemy_x, x
+    clc
+    adc #$08
+    sta v_enemy_x, y
+    sta v_work + 0 ; 後でスプライトに設定するために一時記憶
+    ; Y座標 = 潜水艦-16
+    lda v_enemy_y, x
+    clc
+    sbc #$10
+    sta v_enemy_y, y
+    sta v_work + 1 ; 後でスプライトに設定するために一時記憶
+    ; 使用するフラグを初期化
+    lda #$00
+    sta v_enemy_i0, y
+    sta v_enemy_i1, y
+    ; レジスタYをスプライトindexに変更してスプライトの初期化
+    lda v_enemy_si, y
+    tay
+    lda #$0a
+    sta sp_enemyT, y
+    lda v_work+0
+    sta sp_enemyX, y
+    lda v_work+1
+    sta sp_enemyY, y
+    lda #%00000010
+    sta sp_enemyA, y
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
+; 敵3 (潜水艦の魚雷)
+;------------------------------------------------------------
+moveEnemy3:
+    ldy v_enemy_i0, x
+    iny
+    sty v_enemy_i0, x
+    tya
+    and #$0f
+    bne moveEnemy3_notSpeedUp
+    ldy v_enemy_i1, x
+    iny
+    sty v_enemy_i1, x
+moveEnemy3_notSpeedUp:
+    ; 加速しながら上昇
+    lda v_enemy_y, x
+    clc
+    sbc v_enemy_i1, x
+    cmp #$f8
+    bcs moveEnemy3_erase
+    sta v_enemy_y, x
+    ldy v_enemy_si, x
+    sta sp_enemyY, y
+    ; アニメーション
+    lda v_counter
+    and #%00000100
+    ror
+    clc
+    adc #$0a
+    sta sp_enemyT, y
+    jmp moveEnemy_next
+moveEnemy3_erase:
+    ldy v_enemy_si, x
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT, y
+    sta sp_enemyY, y
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
