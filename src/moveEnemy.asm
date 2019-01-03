@@ -288,6 +288,7 @@ moveEnemy_fire_ok:
     lda #$00
     sta v_enemy_i + 0, y
     sta v_enemy_i + 1, y
+    sta v_enemy_i + 2, y
     ; スプライトパターン設定
     lda #$0a
     sta sp_enemyT0, y
@@ -330,6 +331,7 @@ moveEnemy3_notSpeedUp:
     bcs moveEnemy3_erase
     sta v_enemy_y, x
     sta sp_enemyY0, x
+    tay
     ; アニメーション
     lda v_counter
     and #%00000100
@@ -337,6 +339,38 @@ moveEnemy3_notSpeedUp:
     clc
     adc #$0a
     sta sp_enemyT0, x
+    ; #4a未満になったら水しぶきをあげる
+    lda v_enemy_i + 2, x
+    bne moveEnemy3_hitCheck
+    tya
+    cmp #$4a
+    bcs moveEnemy3_hitCheck
+    lda #$40
+    sta sp_dustEY
+    sta sp_dustEY + 4
+    lda #%00000011 ;
+    sta sp_dustEA
+    sta sp_dustEA + 4
+    lda v_enemy_x, x
+    sbc #$04
+    sta sp_dustEX
+    adc #$08
+    sta sp_dustEX + 4
+    lda #$01
+    sta v_dustE
+    sta v_enemy_i + 2, x
+
+    ; play SE1 (ノイズを使う)
+    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
+    lda #%00011111
+    sta $400C
+    ;     r---ssss (r=乱数種別, s=サンプリングレート)
+    lda #%01100001
+    sta $400E
+    ;     ttttt--- (t=再生時間)
+    lda #%00111111
+    sta $400F
+moveEnemy3_hitCheck:
     ; ショットとの当たり判定
     lda v_shotF
     beq moveEnemy3_noHit

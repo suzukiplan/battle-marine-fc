@@ -31,7 +31,7 @@ mainloop_addNewEnemy_end:
     ; 粉塵のアニメーション
 mainloop_dust:
     lda v_dust
-    beq mainloop_shot
+    beq mainloop_dustE
     clc
     adc #$01
     and #%00011111
@@ -43,10 +43,32 @@ mainloop_dust:
     sta sp_dustT
     adc #$02
     sta sp_dustT + 4
-    bne mainloop_shot
+    bne mainloop_dustE
 mainloop_dustErase:
     sta sp_dustT
     sta sp_dustT + 4
+
+    ; 水しぶきのアニメーション
+mainloop_dustE:
+    lda v_dustE
+    beq mainloop_shot
+    clc
+    adc #$01
+    and #%00011111
+    sta v_dustE
+    beq mainloop_dustEErase
+    and #%00011000
+    ror
+    adc #$60
+    sta sp_dustET
+    adc #$02
+    sta sp_dustET + 4
+    bne mainloop_shot
+mainloop_dustEErase:
+    sta sp_dustET
+    sta sp_dustEY
+    sta sp_dustET + 4
+    sta sp_dustEY + 4
 
     ; プレイヤのショットを動かす
 mainloop_shot:

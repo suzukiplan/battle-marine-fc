@@ -60,7 +60,7 @@ palettes:
     .byte   $0f, $00, $10, $20 ; 白色のグラデーション (mask, dark, middle, light)
     .byte   $0f, $06, $28, $20 ; 爆発 (mask, 赤, 黄, 白)
     .byte   $0f, $18, $28, $38 ; 黄色のグラデーション (mask, dark, middle, light)
-    .byte   $00, $00, $00, $00 ; 未使用
+    .byte   $0f, $11, $2c, $16 ; 海のスプライト用 (mask, 海, 水面, 土)
 
 wave_table:; 並の揺れ具合 (水面のオブジェクトは皆これをY座標にすればよい)
     .byte   $42, $42, $42, $42, $42, $42, $42, $42
@@ -125,6 +125,7 @@ v_work:     .byte   $00, $00, $00, $00 ; 4c-4f: 汎用ワーク変数
 v_sb_exist: .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 50-57: 潜水艦のY座標重複防止フラグ
 v_et_idx:   .byte   $00     ; 58: 敵テーブルのインデックス
 v_push:     .byte   $00     ; 59: ボタン押し込みフラグ
+v_dustE:    .byte   $00     ; 5a: 敵ショットの水しぶき
 
 .org $0300
 sp_playerY: .byte   $00                 ; 00 - player0
@@ -137,11 +138,16 @@ sp_shotY:   .byte   $00                 ; 03 - player shot
 sp_shotT:   .byte   $00
 sp_shotA:   .byte   $00
 sp_shotX:   .byte   $00
-sp_dustY:   .byte   $00                 ; 04 - dust0
+sp_dustY:   .byte   $00                 ; 04 - dust0 (player shot)
 sp_dustT:   .byte   $00
 sp_dustA:   .byte   $00
 sp_dustX:   .byte   $00
-sp_dust1:   .byte   $00, $00, $00, $00  ; 05 - dust1
+            .byte   $00, $00, $00, $00
+sp_dustEY:  .byte   $00                 ; 05 - dust1 (enemy shot)
+sp_dustET:  .byte   $00
+sp_dustEA:  .byte   $00
+sp_dustEX:  .byte   $00
+            .byte   $00, $00, $00, $00
 sp_enemyY0:  .byte  $00                 ; 06 - enemy0(0)
 sp_enemyT0:  .byte  $00
 sp_enemyA0:  .byte  $00
