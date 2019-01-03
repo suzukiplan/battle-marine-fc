@@ -16,10 +16,17 @@ moveEnemy_not2:
     bne moveEnemy_not3
     jmp moveEnemy3
 moveEnemy_not3:
+    cmp #$ff
+    beq moveEnemy_isFF ; 敵4/5よりも爆発の方が出現頻度が高いので先に判定しておく
     cmp #$04
     bne moveEnemy_not4
     jmp moveEnemy4
 moveEnemy_not4:
+    cmp #$05
+    bne moveEnemy_not5
+    jmp moveEnemy5
+moveEnemy_not5:
+moveEnemy_isFF:
     jmp moveEnemyFF
 moveEnemy_next:
     txa
@@ -453,9 +460,9 @@ moveEnemy4_speed_over1:
     and #$3f
     sta v_enemy_i + 2, x
 moveEnemy4_right:
-    lda v_work
+    lda v_enemy_x, x
     clc
-    adc v_enemy_x, x
+    adc v_enemy_i + 0, x
     cmp #248
     bcs moveEnemy4_erase
     sta v_enemy_x, x
@@ -615,6 +622,195 @@ moveEnemy4_fall_end:
     bne moveEnemy4_fall_noSplash
     jmp moveEnemy4_splash
 moveEnemy4_fall_noSplash:
+    rts
+
+;------------------------------------------------------------
+; 敵5 (左方向に進む魚)
+;------------------------------------------------------------
+moveEnemy5:
+    lda v_enemy_i + 0, x
+    bne moveEnemy5_left
+    ; 移動速度を決定
+    ldy v_rand_idx
+    iny
+    sty v_rand_idx
+    lda rand_table, y
+    and #$03
+    bne moveEnemy5_speed_over1
+    adc #$01
+moveEnemy5_speed_over1:
+    sta v_work
+    sta v_enemy_i + 0, x
+    ; 上昇開始までのフレーム数を算出
+    ldy v_rand_idx
+    iny
+    sty v_rand_idx
+    lda rand_table, y
+    and #$3f
+    sta v_enemy_i + 2, x
+moveEnemy5_left:
+    lda v_enemy_x, x
+    clc
+    sbc v_enemy_i + 0, x 
+    cmp #249
+    bcs moveEnemy5_erase
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    clc
+    adc #$08
+    sta sp_enemyX1, x
+    jsr moveEnemy5_switch
+moveEnemy5_hitCheck:
+    ; ショットとの当たり判定
+    lda v_shotF
+    beq moveEnemy5_noHit
+    lda v_shotY
+    cmp v_enemy_y, x
+    bcs moveEnemy5_noHit
+    adc #$10
+    cmp v_enemy_y, x
+    bcc moveEnemy5_noHit
+    lda v_shotX
+    adc #$07
+    cmp v_enemy_x, x
+    bcc moveEnemy5_noHit
+    lda v_enemy_x, x
+    adc #$10
+    cmp v_shotX
+    bcc moveEnemy5_noHit
+    jmp moveEnemy5_destruct
+moveEnemy5_erase:
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT0, x
+    sta sp_enemyT1, x
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    ldy v_enemy_i + 1, x
+    sta v_sb_exist, y
+    jmp moveEnemy_next
+moveEnemy5_noHit:
+    jmp moveEnemy_next
+moveEnemy5_destruct:
+    ; 爆発
+    lda #$00
+    sta v_shotF
+    sta sp_shotT
+    sta sp_shotY
+    lda #$ff
+    sta v_enemy_f, x
+    lda #$00
+    sta v_enemy_i + 0, x
+    lda #$01
+    sta sp_enemyA0, x
+    sta sp_enemyA1, x
+    lda #$40
+    sta sp_enemyT0, x
+    lda #$50
+    sta sp_enemyT1, x
+    ldy v_enemy_i + 1, x
+    lda #$00
+    sta v_sb_exist, y
+    jmp moveEnemy_next
+
+moveEnemy5_switch:
+    ; i+3の内容を見て動作を変える
+    lda v_enemy_i + 3, x
+    beq moveEnemy5_waitForJump
+    cmp #$01
+    beq moveEnemy5_jump
+    cmp #$02
+    beq moveEnemy5_fall
+    rts
+moveEnemy5_waitForJump:
+    ; ジャンプタイミング待ち
+    ldy v_enemy_i + 2, x
+    dey
+    sty v_enemy_i + 2, x
+    bne moveEnemy5_waitForJump_end
+    ; ジャンプ開始
+    lda #$84
+    sta sp_enemyT0, x
+    lda #$86
+    sta sp_enemyT1, x
+    lda #$01
+    sta v_enemy_i + 3, x
+moveEnemy5_waitForJump_end:
+    rts
+moveEnemy5_jump:
+    ; 一定の高さまでジャンプ
+    lda v_enemy_y, x
+    clc
+    sbc #$02
+    sta v_enemy_y, x
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    and #$fe
+    cmp #$4e
+    bne moveEnemy5_jump_noSplash
+moveEnemy5_splash:
+    ; 水しぶきをあげる
+    lda #$40
+    sta sp_dustEY
+    sta sp_dustEY + 4
+    lda #%00000011 ;
+    sta sp_dustEA
+    sta sp_dustEA + 4
+    lda v_enemy_x, x
+    sbc #$04
+    sta sp_dustEX
+    adc #$08
+    sta sp_dustEX + 4
+    lda #$01
+    sta v_dustE
+    sta v_enemy_i + 2, x
+    ; play SE1 (ノイズを使う)
+    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
+    lda #%00011111
+    sta $400C
+    ;     r---ssss (r=乱数種別, s=サンプリングレート)
+    lda #%01100001
+    sta $400E
+    ;     ttttt--- (t=再生時間)
+    lda #%00111111
+    sta $400F
+    rts
+moveEnemy5_jump_noSplash:
+    cmp #$20
+    bcs moveEnemy5_jump_end
+    ; 一定の高さに達したので落下を始める
+    lda #$88
+    sta sp_enemyT0, x
+    lda #$8a
+    sta sp_enemyT1, x
+    lda #$02
+    sta v_enemy_i + 3, x
+moveEnemy5_jump_end:
+    rts
+moveEnemy5_fall:
+    ; 一定の低さまで落ちる
+    lda v_enemy_y, x
+    clc
+    adc #$02
+    sta v_enemy_y, x
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    cmp #$a0
+    bcc moveEnemy5_fall_end
+    ; 落下から単純な進行に切り替える
+    lda #$80
+    sta sp_enemyT0, x
+    lda #$82
+    sta sp_enemyT1, x
+    lda #$03
+    sta v_enemy_i + 3, x
+    rts
+moveEnemy5_fall_end:
+    and #$fe
+    cmp #$4e
+    bne moveEnemy5_fall_noSplash
+    jmp moveEnemy5_splash
+moveEnemy5_fall_noSplash:
     rts
 
 ;------------------------------------------------------------
