@@ -20,7 +20,6 @@ mainloop:
     jsr sub_newEnemy
 mainloop_addNewEnemy_end:
 
-
     ; 波座標を求める
     lda v_counter
     and #$1f

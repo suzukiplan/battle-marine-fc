@@ -126,6 +126,7 @@ v_sb_exist: .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 50-57: 潜水艦の
 v_et_idx:   .byte   $00     ; 58: 敵テーブルのインデックス
 v_push:     .byte   $00     ; 59: ボタン押し込みフラグ
 v_dustE:    .byte   $00     ; 5a: 敵ショットの水しぶき
+v_dest_cnt: .byte   $00     ; 5b: 破壊カウンタ
 
 .org $0300
 sp_playerY: .byte   $00                 ; 00 - player0

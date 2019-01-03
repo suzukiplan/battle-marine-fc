@@ -26,6 +26,14 @@ moveEnemy_not4:
     bne moveEnemy_not5
     jmp moveEnemy5
 moveEnemy_not5:
+    cmp #$06
+    bne moveEnemy_not6
+    jmp moveEnemy6
+moveEnemy_not6:
+    cmp #$07
+    bne moveEnemy_not7
+    jmp moveEnemy7
+moveEnemy_not7:
 moveEnemy_isFF:
     jmp moveEnemyFF
 moveEnemy_next:
@@ -814,6 +822,98 @@ moveEnemy5_fall_noSplash:
     rts
 
 ;------------------------------------------------------------
+; 敵6 (右方向へ動くカモメ)
+;------------------------------------------------------------
+moveEnemy6:
+    ldy v_enemy_x, x
+    iny
+    tya
+    cmp #248
+    bcs moveEnemy6_erase
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    adc #$08
+    sta sp_enemyX1, x
+moveEnemy6_animate:
+    ; アニメーション
+    lda v_counter
+    and #%00000100
+    ror
+    clc
+    adc #$90
+    sta sp_enemyT0, x
+    adc #$04
+    sta sp_enemyT1, x
+    bne moveEnemy6_unkCheck
+moveEnemy6_erase:
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT0, x
+    sta sp_enemyT1, x
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    jmp moveEnemy_next
+moveEnemy6_unkCheck:
+    ; 自機が射程に居る場合はうんこを発射
+    lda v_enemy_x, x
+    adc #16
+    cmp v_playerX
+    bcc moveEnemy6_noFire
+    lda v_playerX
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy6_noFire
+    ; TODO: うんこ発射処理
+moveEnemy6_noFire:
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
+; 敵7 (左方向へ動くカモメ)
+;------------------------------------------------------------
+moveEnemy7:
+    ldy v_enemy_x, x
+    dey
+    tya
+    cmp #248
+    bcs moveEnemy7_erase
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    adc #$08
+    sta sp_enemyX1, x
+moveEnemy7_animate:
+    ; アニメーション
+    lda v_counter
+    and #%00000100
+    ror
+    clc
+    adc #$a0
+    sta sp_enemyT0, x
+    adc #$04
+    sta sp_enemyT1, x
+    bne moveEnemy7_unkCheck
+moveEnemy7_erase:
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT0, x
+    sta sp_enemyT1, x
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    jmp moveEnemy_next
+moveEnemy7_unkCheck:
+    ; 自機が射程に居る場合はうんこを発射
+    lda v_enemy_x, x
+    adc #16
+    cmp v_playerX
+    bcc moveEnemy7_noFire
+    lda v_playerX
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy7_noFire
+    ; TODO: うんこ発射処理
+moveEnemy7_noFire:
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
 ; 敵FF (爆発エフェクト)
 ;------------------------------------------------------------
 moveEnemyFF:
@@ -845,6 +945,28 @@ moveEnemyFF:
     lda #%10001000
     sta $4007
 
+    ; 破壊カウンタをインクリメント
+    lda v_dest_cnt
+    clc
+    adc #$01
+    sta v_dest_cnt
+
+    ; 特殊な敵追加
+    and #$0f
+    cmp #$08 ; 8/15のタイミングでカモメ追加を試行
+    beq moveEnemyFF_addSeagull
+    cmp #$0c ; 12/15のタイミングでカモメ追加を試行
+    beq moveEnemyFF_addSeagull
+    bne moveEnemyFF_skipSE
+
+moveEnemyFF_addSeagull:
+    ; カモメを追加
+    tya ; yを使いたいのでスタックに退避しておく
+    pha
+    jsr moveEnemy_addSeagull
+    pla
+    tay
+
 moveEnemyFF_skipSE:
     iny
     tya
@@ -867,3 +989,74 @@ moveEnemyFF_erase:
     sta sp_enemyT1, x
     sta sp_enemyY1, x
     jmp moveEnemy_next
+
+;------------------------------------------------------------
+; 16回サイクルの爆発の8回目でカモメを追加 (方向はランダム)
+;------------------------------------------------------------
+moveEnemy_addSeagull:
+    ; インデックスを加算
+    lda v_enemy_idx
+    clc
+    adc #$04
+    and #$1f
+    sta v_enemy_idx
+    tay
+    lda v_enemy_f, y
+    beq moveEnemy_addSeagull_ok
+    rts
+moveEnemy_addSeagull_ok:
+    lda v_counter
+    and #$01
+    beq moveEnemy_addSeagull_toLeft
+moveEnemy_addSeagull_toRight:
+    lda #$06
+    sta v_enemy_f, y
+    ; X座標
+    lda #$00
+    sta v_enemy_x, y
+    sta sp_enemyX0, y
+    clc
+    adc #$08
+    sta sp_enemyX1, y
+    ; Y座標
+    lda #$12
+    sta v_enemy_y, y
+    sta sp_enemyY0, y
+    sta sp_enemyY1, y
+    ; 使用するフラグを初期化
+    lda #$00
+    sta v_enemy_i + 0, y
+    sta sp_enemyA0, y
+    sta sp_enemyA1, y
+    ; スプライトパターン設定
+    lda #$90
+    sta sp_enemyT0, y
+    lda #$94
+    sta sp_enemyT1, y
+    rts
+moveEnemy_addSeagull_toLeft:
+    lda #$07
+    sta v_enemy_f, y
+    ; X座標
+    lda #248
+    sta v_enemy_x, y
+    sta sp_enemyX0, y
+    clc
+    adc #$08
+    sta sp_enemyX1, y
+    ; Y座標
+    lda #$12
+    sta v_enemy_y, y
+    sta sp_enemyY0, y
+    sta sp_enemyY1, y
+    ; 使用するフラグを初期化
+    lda #$00
+    sta v_enemy_i + 0, y
+    sta sp_enemyA0, y
+    sta sp_enemyA1, y
+    ; スプライトパターン設定
+    lda #$a0
+    sta sp_enemyT0, y
+    lda #$a4
+    sta sp_enemyT1, y
+    rts
