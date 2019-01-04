@@ -46,6 +46,7 @@ moveEnemy_not9:
     bne moveEnemy_notA
     jmp moveEnemyA
 moveEnemy_notA:
+    jmp moveEnemyB
 moveEnemy_isFF:
     jmp moveEnemyFF
 moveEnemy_next:
@@ -1038,6 +1039,13 @@ moveEnemy9_jump:
     ; 重力処理
     ldy v_enemy_i + 1, x
     iny
+    bne moveEnemy9_notZero
+    tya
+    pha
+    jsr moveEnemy_newKTM ; 重力0のタイミングでカニ玉を発射
+    pla
+    tay
+moveEnemy9_notZero:
     sty v_enemy_i + 1, x
     jmp moveEnemy9_hitCheck
 moveEnemy9_endJump:
@@ -1138,6 +1146,13 @@ moveEnemyA_jump:
     ; 重力処理
     ldy v_enemy_i + 1, x
     iny
+    bne moveEnemyA_notZero
+    tya
+    pha
+    jsr moveEnemy_newKTM ; 重力0のタイミングでカニ玉を発射
+    pla
+    tay
+moveEnemyA_notZero:
     sty v_enemy_i + 1, x
     jmp moveEnemyA_hitCheck
 moveEnemyA_endJump:
@@ -1158,6 +1173,123 @@ moveEnemyA_destruct:
     sta sp_shotY
     lda #$ff
     sta v_enemy_f, x
+    lda #$00
+    sta v_enemy_i + 0, x
+    lda #$01
+    sta sp_enemyA0, x
+    sta sp_enemyA1, x
+    lda #$40
+    sta sp_enemyT0, x
+    lda #$50
+    sta sp_enemyT1, x
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
+; 敵B (カニ玉)
+;------------------------------------------------------------
+moveEnemyB:
+    ldy v_enemy_i + 0, x
+    iny
+    sty v_enemy_i + 0, x
+    tya
+    and #$0f
+    bne moveEnemyB_notSpeedUp
+    ldy v_enemy_i + 1, x
+    iny
+    sty v_enemy_i + 1, x
+moveEnemyB_notSpeedUp:
+    ; 加速しながら上昇
+    lda v_enemy_y, x
+    clc
+    sbc v_enemy_i + 1, x
+    cmp #$f8
+    bcs moveEnemyB_erase
+    sta v_enemy_y, x
+    sta sp_enemyY0, x
+    tay
+    ; アニメーション
+    lda v_counter
+    and #%00000100
+    ror
+    clc
+    adc #$7c
+    sta sp_enemyT0, x
+    ; #4a未満になったら水しぶきをあげる
+    lda v_enemy_i + 2, x
+    bne moveEnemyB_hitCheck
+    tya
+    cmp #$4a
+    bcs moveEnemyB_hitCheck
+    lda #$40
+    sta sp_dustEY
+    sta sp_dustEY + 4
+    lda #%00000011 ;
+    sta sp_dustEA
+    sta sp_dustEA + 4
+    lda v_enemy_x, x
+    sbc #$04
+    sta sp_dustEX
+    adc #$08
+    sta sp_dustEX + 4
+    lda #$01
+    sta v_dustE
+    sta v_enemy_i + 2, x
+
+    ; play SE1 (ノイズを使う)
+    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
+    lda #%00011111
+    sta $400C
+    ;     r---ssss (r=乱数種別, s=サンプリングレート)
+    lda #%01100001
+    sta $400E
+    ;     ttttt--- (t=再生時間)
+    lda #%00111111
+    sta $400F
+moveEnemyB_hitCheck:
+    ; ショットとの当たり判定
+    lda v_shotF
+    beq moveEnemyB_noHit
+    lda v_shotY
+    cmp v_enemy_y, x
+    bcs moveEnemyB_noHit
+    adc #$10
+    cmp v_enemy_y, x
+    bcc moveEnemyB_noHit
+    lda v_shotX
+    adc #$07
+    cmp v_enemy_x, x
+    bcc moveEnemyB_noHit
+    lda v_enemy_x, x
+    adc #$07
+    cmp v_shotX
+    bcc moveEnemyB_noHit
+    jmp moveEnemyB_destruct
+moveEnemyB_noHit:
+    jmp moveEnemy_next
+moveEnemyB_erase:
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT0, x
+    sta sp_enemyY0, x
+    jmp moveEnemy_next
+moveEnemyB_destruct:
+    ; 爆発
+    lda #$00
+    sta v_shotF
+    sta sp_shotT
+    sta sp_shotY
+    lda #$ff
+    sta v_enemy_f, x
+    lda v_enemy_x, x
+    clc
+    sbc #$04
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    clc
+    adc #$08
+    sta sp_enemyX1, x
+    lda v_enemy_y, x
+    sta sp_enemyY1, x
     lda #$00
     sta v_enemy_i + 0, x
     lda #$01
@@ -1469,4 +1601,58 @@ moveEnemy_addClub_toLeft:
     sta sp_enemyT0, y
     lda #$2e
     sta sp_enemyT1, y
+    rts
+
+;------------------------------------------------------------
+; カニ玉を発射 (xが発射元のカニのindexでa/yを自由に使用可能)
+;------------------------------------------------------------
+moveEnemy_newKTM:
+    ; インデックスを加算
+    lda v_enemy_idx
+    clc
+    adc #$04
+    and #$1f
+    sta v_enemy_idx
+    tay
+    lda v_enemy_f, y
+    beq moveEnemy_newKTM_ok
+    rts
+moveEnemy_newKTM_ok:
+    lda #$0b
+    sta v_enemy_f, y
+    ; X座標 = カニ+4
+    lda v_enemy_x, x
+    clc
+    adc #$04
+    sta v_enemy_x, y
+    sta sp_enemyX0, y
+    ; Y座標 = カニ-8
+    lda v_enemy_y, x
+    sbc #$08
+    sta v_enemy_y, y
+    sta sp_enemyY0, y
+    ; 初期値設定
+    lda #$00
+    sta v_enemy_i + 0, y
+    sta v_enemy_i + 1, y
+    sta v_enemy_i + 2, y
+    sta v_enemy_i + 3, y
+    ; スプライトパターン設定
+    lda #$7c
+    sta sp_enemyT0, y
+    lda #%00000001
+    sta sp_enemyA0, y
+    ; play SE (矩形波2を使う)
+    ;     ddcevvvv (d=duty, c=再生時間カウンタ, e=effect, v=volume)
+    lda #%11111111
+    sta $4004
+    ;     csssmrrr (c=周波数変化, s=speed, m=method, r=range)
+    lda #%11111011
+    sta $4005
+    ;     kkkkkkkk (k=音程周波数の下位8bit)
+    lda #%01101000
+    sta $4006
+    ;     tttttkkk (t=再生時間, k=音程周波数の上位3bit)
+    lda #%10101001
+    sta $4007
     rts
