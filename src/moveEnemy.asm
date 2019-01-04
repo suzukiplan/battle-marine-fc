@@ -1193,10 +1193,35 @@ moveEnemyB:
     sty v_enemy_i + 0, x
     tya
     and #$0f
-    bne moveEnemyB_notSpeedUp
+    bne moveEnemyB_moveX
     ldy v_enemy_i + 1, x
     iny
     sty v_enemy_i + 1, x
+moveEnemyB_moveX:
+    ; 加速度が4未満の間は自機の下に来るように調整
+    lda v_enemy_i + 1, x
+    cmp #$04
+    bcs moveEnemyB_notSpeedUp
+    lda v_enemy_x, x
+    adc #$04
+    cmp v_playerX
+    bcc moveEnemyB_toRight
+    lda v_playerX
+    adc #$0b
+    cmp v_enemy_x, x
+    bcs moveEnemyB_notSpeedUp
+    ; 左へ誘導
+    lda v_enemy_x, x
+    sbc #$01
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    bne moveEnemyB_notSpeedUp
+moveEnemyB_toRight:
+    ; 右へ誘導
+    lda v_enemy_x, x
+    adc #$01
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
 moveEnemyB_notSpeedUp:
     ; 加速しながら上昇
     lda v_enemy_y, x
