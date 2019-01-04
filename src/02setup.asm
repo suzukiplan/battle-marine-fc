@@ -7,10 +7,19 @@ setup:
     sta $2000
     sta $2001
 
+    ; zero page ($00〜$7fのみクリア ※$80〜$ffは永続値なのでクリアしない)
+    lda #$00
+    ldx #$00
+    ldy #$80
+setup_clear_ram0:
+    sta $0000, x
+    inx
+    dey
+    bne setup_clear_ram0
+
     lda #$00
     ldx #$00
 setup_clear_ram:
-    sta $0000, x
     sta $0100, x
     sta $0200, x
     sta $0300, x
@@ -126,18 +135,7 @@ setup_draw_bg5:
     bne setup_draw_bg5
 
     ; スコアを描画
-    lda #$20
-    sta $2006
-    lda #$23
-    sta $2006
-    ldy #26
-    ldx #$00
-setup_draw_score:
-    lda string_score, x
-    sta $2007
-    inx
-    dey
-    bne setup_draw_score
+    jsr draw_score
 
     ; scroll setting
     lda #$00

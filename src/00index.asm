@@ -20,6 +20,24 @@
     ldx #$ff
     txs
 
+    ; init high score
+    lda #$03
+    sta v_hi10
+    lda #$07
+    sta v_hi100
+    lda #$05
+    sta v_hi1000
+    lda #$00
+    sta v_hi10000
+    sta v_hi100000
+    sta v_hi1000000
+    lda #$3d
+    sta v_hi
+    lda #$02
+    sta v_hi + 1
+    lda #$00
+    sta v_hi + 2
+
     ; make palette table
     lda #$3f
     sta $2006
@@ -44,11 +62,12 @@ copy_pal:
 .include "newEnemy.asm"
 .include "movePlayer.asm"
 .include "moveEnemy.asm"
+.include "score.asm"
 .endproc
 
 string_score:
     ;        12345678901234567890123456
-    .byte   "SC       00    HI       00"
+    .byte   "SC        0    HI        0"
 
 palettes:
     ; BG
@@ -130,6 +149,24 @@ v_dest_cnt: .byte   $00     ; 5b: 破壊カウンタ
 v_dest_player:.byte $00     ; 5c: プレイヤの爆破アニメーションカウンタ
 v_medal:    .byte   $00     ; 5d: メダル取得数
 v_medal_cnt:.byte   $00     ; 5e: メダル数のフレーム内変化値
+v_sc_plus:  .byte   $00     ; 5f: 1フレームあたりのスコア加算回数
+v_sc10:     .byte   $00     ; 60: スコア(10の位)
+v_sc100:    .byte   $00     ; 61: スコア(100の位)
+v_sc1000:   .byte   $00     ; 62: スコア(1000の位)
+v_sc10000:  .byte   $00     ; 63: スコア(10000の位)
+v_sc100000: .byte   $00     ; 64: スコア(100000の位)
+v_sc1000000:.byte   $00     ; 65: スコア(1000000の位)
+v_sc:       .byte   $00, $00, $00 ; 66-69: スコア数値
+v_hi_update:.byte   $00     ; 6a: ハイスコア更新フラグ
+
+.org $0080
+v_hi10:     .byte   $00     ; 80: ハイスコア(10の位)
+v_hi100:    .byte   $00     ; 81: ハイスコア(100の位)
+v_hi1000:   .byte   $00     ; 82: ハイスコア(1000の位)
+v_hi10000:  .byte   $00     ; 83: ハイスコア(10000の位)
+v_hi100000: .byte   $00     ; 84: ハイスコア(100000の位)
+v_hi1000000:.byte   $00     ; 85: ハイスコア(1000000の位)
+v_hi:       .byte   $00, $00, $00 ; 86-89: ハイスコア数値
 
 .org $0300
 sp_playerY: .byte   $00                 ; 00 - player0

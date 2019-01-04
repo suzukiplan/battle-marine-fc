@@ -206,7 +206,18 @@ mainloop_drawMedalEnd:
     jmp mainloop
 mainloop_medalNotChanged:
 
-    ; TODO: スコアの更新処理
+    ; スコア更新
+    ldx v_sc_plus
+    beq mainloop_scoreNotAdded
+    dex
+    stx v_sc_plus
+    jsr sub_addScore10
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+    jmp mainloop
+mainloop_scoreNotAdded:
 
     jmp mainloop
 

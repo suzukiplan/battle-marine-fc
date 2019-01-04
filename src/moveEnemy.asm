@@ -1444,6 +1444,13 @@ moveEnemyFF:
     lda #%10001000
     sta $4007
 
+    ; スコアを加算
+    lda v_sc_plus
+    clc
+    adc #$01
+    adc v_medal
+    sta v_sc_plus
+
     ; メダル数をインクリメント
     lda v_medal_cnt
     clc
