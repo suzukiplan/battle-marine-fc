@@ -1444,9 +1444,14 @@ moveEnemyFF:
     lda #%10001000
     sta $4007
 
+    ; メダル数をインクリメント
+    lda v_medal_cnt
+    clc
+    adc #$01
+    sta v_medal_cnt
+
     ; 破壊カウンタをインクリメント
     lda v_dest_cnt
-    clc
     adc #$01
     sta v_dest_cnt
 

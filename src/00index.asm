@@ -128,6 +128,8 @@ v_push:     .byte   $00     ; 59: ボタン押し込みフラグ
 v_dustE:    .byte   $00     ; 5a: 敵ショットの水しぶき
 v_dest_cnt: .byte   $00     ; 5b: 破壊カウンタ
 v_dest_player:.byte $00     ; 5c: プレイヤの爆破アニメーションカウンタ
+v_medal:    .byte   $00     ; 5d: メダル取得数
+v_medal_cnt:.byte   $00     ; 5e: メダル数のフレーム内変化値
 
 .org $0300
 sp_playerY: .byte   $00                 ; 00 - player0

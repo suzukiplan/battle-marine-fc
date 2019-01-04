@@ -2,6 +2,10 @@
 ; メインループ
 ;------------------------------------------
 mainloop:
+    ; メダル数の変化値をメダル数に合わせておく
+    lda v_medal
+    sta v_medal_cnt
+
     ; ジョイパットの入力値の取得開始
     lda #$01
     sta $4016
@@ -144,6 +148,9 @@ mainloop_eraseShot:
     ;     ttttt--- (t=再生時間)
     lda #%11111000
     sta $400F
+    ; メダルを全て失う
+    lda #$00
+    sta v_medal_cnt
 
     ; ゲームオーバー中でなければプレイヤの移動処理を実行
 mainloop_movePlayer:
@@ -155,11 +162,51 @@ mainloop_skipPlayer:
     ; 敵を動かす
     jsr sub_moveEnemy
 
+    ; メダル数の変化値を15以下に丸める
+    lda v_medal_cnt
+    and #$0f
+
 mainloop_wait_vBlank:
     lda $2002
     bpl mainloop_wait_vBlank ; wait for vBlank
     lda #$3
     sta $4014
+
+    ; メダル数が変化した場合は描画
+    lda v_medal_cnt
+    cmp v_medal
+    beq mainloop_medalNotChanged
+    sta v_medal
+    tay
+    lda #$20
+    sta $2006
+    lda #$43
+    sta $2006
+    ldx #$0f
+    lda v_medal
+    beq mainloop_drawNoMedal
+    lda #$01
+mainloop_drawMedal:
+    sta $2007
+    dex
+    beq mainloop_drawMedalEnd
+    dey
+    bne mainloop_drawMedal
+mainloop_drawNoMedal:
+    lda #$00
+mainloop_drawMedal2:
+    sta $2007
+    dex
+    bne mainloop_drawMedal2
+mainloop_drawMedalEnd:
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+    jmp mainloop
+mainloop_medalNotChanged:
+
+    ; TODO: スコアの更新処理
 
     jmp mainloop
 
