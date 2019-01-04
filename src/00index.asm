@@ -53,7 +53,7 @@ string_score:
 palettes:
     ; BG
     .byte   $0f, $00, $10, $20 ; 白色のグラデーション (mask, dark, middle, light)
-    .byte   $0f, $08, $18, $28 ; 黄色のグラデーション (mask, dark, middle, light)
+    .byte   $0f, $18, $28, $38 ; 黄色のグラデーション (mask, dark, middle, light)
     .byte   $0f, $11, $2c, $16 ; 海の背景用 (mask, 海, 水面, 土)
     .byte   $00, $00, $00, $00 ; 未使用
     ; Sprite

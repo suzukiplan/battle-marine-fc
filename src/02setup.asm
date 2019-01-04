@@ -54,7 +54,7 @@ setup_clear_ram:
     lda #$c0
     sta $2006
 
-    lda #%00000000
+    lda #%01010000
     ldx #$10
 setup_attr_table1:
     sta $2007
