@@ -20,6 +20,36 @@ mainloop:
     jsr sub_newEnemy
 mainloop_addNewEnemy_end:
 
+    ; ゲームオーバー演出
+    lda v_gameOver
+    beq mainloop_endGameOver
+    cmp #$01
+    beq mainloop_playerBomb
+    bne mainloop_endGameOver ; TODO: プレイヤ爆破後にGAME OVERを表示して一定時間でタイトルに戻る
+mainloop_playerBomb:
+    ; プレイヤの爆破アニメーション
+    ldx v_dest_player
+    inx
+    stx v_dest_player
+    txa
+    and #$1f
+    beq mainloop_playerBombEnd
+    and #%00011100
+    lsr
+    clc
+    adc #$40
+    sta sp_playerT
+    adc #$10
+    sta sp_playerT + 4
+    jmp mainloop_endGameOver
+mainloop_playerBombEnd:
+    lda #$02
+    sta v_gameOver
+    lda #$00
+    sta sp_playerT
+    sta sp_playerT + 4
+mainloop_endGameOver:
+
     ; 波座標を求める
     lda v_counter
     and #$1f
@@ -132,3 +162,57 @@ mainloop_wait_vBlank:
     sta $4014
 
     jmp mainloop
+
+;------------------------------------------------------------
+; ゲームオーバーを開始するサブルーチン (レジスタAのみ使う)
+;------------------------------------------------------------
+start_gameOver:
+    lda #$01
+    sta v_gameOver
+    ; スプライト2を消す
+    lda #$00
+    sta v_dest_player
+    sta sp_playerY + 8
+    sta sp_playerT + 8
+    ; スプライト0~1を右に4pxズラす
+    lda v_playerX
+    clc
+    adc #4
+    sta sp_playerX
+    adc #8
+    sta sp_playerX + 4
+    ; スプライト0~1を爆破パターンに変更
+    lda #%00000001
+    sta sp_playerA
+    sta sp_playerA + 4
+    lda #$40
+    sta sp_playerT
+    lda #$50
+    sta sp_playerT + 4
+
+    ; play SE1 (ノイズを使う)
+    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
+    lda #%00011111
+    sta $400C
+    ;     r---ssss (r=乱数種別, s=サンプリングレート)
+    lda #%10001101
+    sta $400E
+    ;     ttttt--- (t=再生時間)
+    lda #%11111000
+    sta $400F
+
+    ; play SE2 (矩形波1を使う)
+    ;     ddcevvvv (d=duty, c=再生時間カウンタ, e=effect, v=volume)
+    lda #%11111111
+    sta $4000
+    ;     csssmrrr (c=周波数変化, s=speed, m=method, r=range)
+    lda #%11110011
+    sta $4001
+    ;     kkkkkkkk (k=音程周波数の下位8bit)
+    lda #%01101000
+    sta $4002
+    ;     tttttkkk (t=再生時間, k=音程周波数の上位3bit)
+    lda #%11111001
+    sta $4003
+
+    rts

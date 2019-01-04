@@ -358,7 +358,13 @@ moveEnemy3_notSpeedUp:
     clc
     sbc v_enemy_i + 1, x
     cmp #$f8
-    bcs moveEnemy3_erase
+    bcc moveEnemy3_notErase
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT0, x
+    sta sp_enemyY0, x
+    jmp moveEnemy_next
+moveEnemy3_notErase:
     sta v_enemy_y, x
     sta sp_enemyY0, x
     tay
@@ -400,6 +406,20 @@ moveEnemy3_notSpeedUp:
     ;     ttttt--- (t=再生時間)
     lda #%00111111
     sta $400F
+
+    ; 自機との当たり判定 (xのみで行う)
+    lda v_gameOver
+    bne moveEnemy3_hitCheck
+    lda v_playerX
+    clc
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy3_hitCheck
+    lda v_enemy_x, x
+    adc #8
+    cmp v_playerX
+    bcc moveEnemy3_hitCheck
+    jsr start_gameOver
 moveEnemy3_hitCheck:
     ; ショットとの当たり判定
     lda v_shotF
@@ -420,12 +440,6 @@ moveEnemy3_hitCheck:
     bcc moveEnemy3_noHit
     jmp moveEnemy3_destruct
 moveEnemy3_noHit:
-    jmp moveEnemy_next
-moveEnemy3_erase:
-    lda #$00
-    sta v_enemy_f, x
-    sta sp_enemyT0, x
-    sta sp_enemyY0, x
     jmp moveEnemy_next
 moveEnemy3_destruct:
     ; 爆発
@@ -606,7 +620,7 @@ moveEnemy4_splash:
     ;     ttttt--- (t=再生時間)
     lda #%00111111
     sta $400F
-    rts
+    jmp moveEnemy4_checkGameOver
 moveEnemy4_jump_noSplash:
     cmp #$20
     bcs moveEnemy4_jump_end
@@ -643,6 +657,23 @@ moveEnemy4_fall_end:
     bne moveEnemy4_fall_noSplash
     jmp moveEnemy4_splash
 moveEnemy4_fall_noSplash:
+    rts
+
+moveEnemy4_checkGameOver:
+    ; 自機との当たり判定 (xのみで行う)
+    lda v_gameOver
+    bne moveEnemy4_noGameOver
+    lda v_playerX
+    clc
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy4_noGameOver
+    lda v_enemy_x, x
+    adc #16
+    cmp v_playerX
+    bcc moveEnemy4_noGameOver
+    jsr start_gameOver
+moveEnemy4_noGameOver:
     rts
 
 ;------------------------------------------------------------
@@ -795,7 +826,7 @@ moveEnemy5_splash:
     ;     ttttt--- (t=再生時間)
     lda #%00111111
     sta $400F
-    rts
+    jmp moveEnemy5_checkGameOver
 moveEnemy5_jump_noSplash:
     cmp #$20
     bcs moveEnemy5_jump_end
@@ -832,6 +863,23 @@ moveEnemy5_fall_end:
     bne moveEnemy5_fall_noSplash
     jmp moveEnemy5_splash
 moveEnemy5_fall_noSplash:
+    rts
+
+moveEnemy5_checkGameOver:
+    ; 自機との当たり判定 (xのみで行う)
+    lda v_gameOver
+    bne moveEnemy5_noGameOver
+    lda v_playerX
+    clc
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy5_noGameOver
+    lda v_enemy_x, x
+    adc #16
+    cmp v_playerX
+    bcc moveEnemy5_noGameOver
+    jsr start_gameOver
+moveEnemy5_noGameOver:
     rts
 
 ;------------------------------------------------------------
@@ -937,6 +985,29 @@ moveEnemy8:
     bcs moveEnemy8_erase
     sta v_enemy_y, x
     sta sp_enemyY0, x
+    ; 自機との当たり判定（うんこだけは毎フレーム厳密にチェック）
+    lda v_gameOver
+    bne moveEnemy8_noGameOver
+    lda v_playerX
+    clc
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemy8_noGameOver
+    lda v_enemy_x, x
+    adc #16
+    cmp v_playerX
+    bcc moveEnemy8_noGameOver
+    lda v_playerY
+    clc
+    adc #16
+    cmp v_enemy_y, x
+    bcc moveEnemy8_noGameOver
+    lda v_enemy_y, x
+    adc #16
+    cmp v_playerY
+    bcc moveEnemy8_noGameOver
+    jsr start_gameOver
+moveEnemy8_noGameOver:
     jmp moveEnemy_next
 moveEnemy8_erase:
     lda #$00
@@ -1228,7 +1299,13 @@ moveEnemyB_notSpeedUp:
     clc
     sbc v_enemy_i + 1, x
     cmp #$f8
-    bcs moveEnemyB_erase
+    bcc moveEnemyB_notErase
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT0, x
+    sta sp_enemyY0, x
+    jmp moveEnemy_next
+moveEnemyB_notErase:
     sta v_enemy_y, x
     sta sp_enemyY0, x
     tay
@@ -1270,6 +1347,21 @@ moveEnemyB_notSpeedUp:
     ;     ttttt--- (t=再生時間)
     lda #%00111111
     sta $400F
+
+    ; 自機との当たり判定 (xのみで行う)
+    lda v_gameOver
+    bne moveEnemyB_hitCheck
+    lda v_playerX
+    clc
+    adc #24
+    cmp v_enemy_x, x
+    bcc moveEnemyB_hitCheck
+    lda v_enemy_x, x
+    adc #8
+    cmp v_playerX
+    bcc moveEnemyB_hitCheck
+    jsr start_gameOver
+
 moveEnemyB_hitCheck:
     ; ショットとの当たり判定
     lda v_shotF
@@ -1290,12 +1382,6 @@ moveEnemyB_hitCheck:
     bcc moveEnemyB_noHit
     jmp moveEnemyB_destruct
 moveEnemyB_noHit:
-    jmp moveEnemy_next
-moveEnemyB_erase:
-    lda #$00
-    sta v_enemy_f, x
-    sta sp_enemyT0, x
-    sta sp_enemyY0, x
     jmp moveEnemy_next
 moveEnemyB_destruct:
     ; 爆発
