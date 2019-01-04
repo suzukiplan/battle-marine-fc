@@ -147,7 +147,7 @@ title_loop:
     lda v_push_start
     clc
     adc #$01
-    and #$1f
+    and #$3f
     sta v_push_start
 
     ; clear joy-pad
@@ -167,5 +167,48 @@ title_wait_vBlank:
     bpl title_wait_vBlank ; wait for vBlank
     lda #$3
     sta $4014
+
+    lda v_push_start
+    cmp #$00
+    beq title_loop_draw1
+    cmp #$20
+    beq title_loop_draw2
     jmp title_loop
+
+title_loop_draw1:
+    lda #$22
+    sta $2006
+    lda #$ab
+    sta $2006
+    ldy #$00
+    ldx #$0a
+title_loop_draw1L:
+    lda string_push_start, y
+    sta $2007
+    iny
+    dex
+    bne title_loop_draw1L
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+    jmp title_loop
+
+title_loop_draw2:
+    lda #$22
+    sta $2006
+    lda #$ab
+    sta $2006
+    ldx #$0a
+    lda #$00
+title_loop_draw2L:
+    sta $2007
+    dex
+    bne title_loop_draw2L
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+    jmp title_loop
+
 title_end:
