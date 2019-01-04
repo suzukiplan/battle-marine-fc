@@ -34,6 +34,10 @@ moveEnemy_not6:
     bne moveEnemy_not7
     jmp moveEnemy7
 moveEnemy_not7:
+    cmp #$08
+    bne moveEnemy_not8
+    jmp moveEnemy8
+moveEnemy_not8:
 moveEnemy_isFF:
     jmp moveEnemyFF
 moveEnemy_next:
@@ -863,7 +867,7 @@ moveEnemy6_unkCheck:
     adc #24
     cmp v_enemy_x, x
     bcc moveEnemy6_noFire
-    ; TODO: うんこ発射処理
+    jmp moveEnemy_newUnk
 moveEnemy6_noFire:
     jmp moveEnemy_next
 
@@ -909,8 +913,52 @@ moveEnemy7_unkCheck:
     adc #24
     cmp v_enemy_x, x
     bcc moveEnemy7_noFire
-    ; TODO: うんこ発射処理
+    jmp moveEnemy_newUnk
 moveEnemy7_noFire:
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
+; 敵8 (うんこ)
+;------------------------------------------------------------
+moveEnemy8:
+    ldy v_enemy_y, x
+    iny
+    tya
+    cmp #$44
+    bcs moveEnemy8_erase
+    sta v_enemy_y, x
+    sta sp_enemyY0, x
+    jmp moveEnemy_next
+moveEnemy8_erase:
+    lda #$00
+    sta v_enemy_f, x
+    sta sp_enemyT0, x
+    sta sp_enemyY0, x
+    ; 水しぶきをあげる
+    lda #$40
+    sta sp_dustEY
+    sta sp_dustEY + 4
+    lda #%00000011 ;
+    sta sp_dustEA
+    sta sp_dustEA + 4
+    lda v_enemy_x, x
+    sbc #$04
+    sta sp_dustEX
+    adc #$08
+    sta sp_dustEX + 4
+    lda #$01
+    sta v_dustE
+    sta v_enemy_i + 2, x
+    ; play SE1 (ノイズを使う)
+    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
+    lda #%00011111
+    sta $400C
+    ;     r---ssss (r=乱数種別, s=サンプリングレート)
+    lda #%01100001
+    sta $400E
+    ;     ttttt--- (t=再生時間)
+    lda #%00111111
+    sta $400F
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
@@ -991,6 +1039,73 @@ moveEnemyFF_erase:
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
+; うんこを発射 (xが発射元のカモメのindexでa/yを自由に使用可能)
+;------------------------------------------------------------
+moveEnemy_newUnk:
+    ldy v_enemy_i + 2, x
+    beq moveEnemy_newUnk_start
+    dey
+    sty v_enemy_i + 2, x
+    jmp moveEnemy_next
+moveEnemy_newUnk_start:
+    ; 発射抑止を設定
+    lda #$10
+    sta v_enemy_i + 2, x
+    ; インデックスを加算
+    lda v_enemy_idx
+    clc
+    adc #$04
+    and #$1f
+    sta v_enemy_idx
+    tay
+    lda v_enemy_f, y
+    beq moveEnemy_newUnk_start_ok
+    jmp moveEnemy_next
+moveEnemy_newUnk_start_ok:
+    lda #$08
+    sta v_enemy_f, y
+    ; X座標 = カモメ+4
+    lda v_enemy_x, x
+    clc
+    adc #$04
+    sta v_enemy_x, y
+    sta sp_enemyX0, y
+    ; Y座標 = カモメ+8
+    lda v_enemy_y, x
+    adc #$08
+    sta v_enemy_y, y
+    sta sp_enemyY0, y
+    ; スプライトパターン設定
+    lda #$0e
+    sta sp_enemyT0, y
+    lda #%00100000
+    sta sp_enemyA0, y
+    ; play SE (矩形波2を使う)
+    ;     ddcevvvv (d=duty, c=再生時間カウンタ, e=effect, v=volume)
+    lda #%10111111
+    sta $4004
+    ;     csssmrrr (c=周波数変化, s=speed, m=method, r=range)
+    lda #%11011010
+    sta $4005
+    ;     kkkkkkkk (k=音程周波数の下位8bit)
+    lda #%01101000
+    sta $4006
+    ;     tttttkkk (t=再生時間, k=音程周波数の上位3bit)
+    lda #%10001001
+    sta $4007
+    ; play SE1 (三角波を使う)
+    ;     cttttttt (c=再生時間カウンタ, t=再生時間)
+    lda #%00000111
+    sta $4008
+    ;     ssssssss (s=サンプリングレート下位8bit)
+    lda #%11111111
+    sta $400A
+    ;     tttttsss (t=再生時間, s=サンプリングレート上位3bit)
+    lda #%00001111
+    sta $400B
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
 ; 16回サイクルの爆発の8回目でカモメを追加 (方向はランダム)
 ;------------------------------------------------------------
 moveEnemy_addSeagull:
@@ -1026,6 +1141,7 @@ moveEnemy_addSeagull_toRight:
     ; 使用するフラグを初期化
     lda #$00
     sta v_enemy_i + 0, y
+    sta v_enemy_i + 2, y
     sta sp_enemyA0, y
     sta sp_enemyA1, y
     ; スプライトパターン設定
