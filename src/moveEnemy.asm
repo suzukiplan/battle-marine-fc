@@ -38,6 +38,14 @@ moveEnemy_not7:
     bne moveEnemy_not8
     jmp moveEnemy8
 moveEnemy_not8:
+    cmp #$09
+    bne moveEnemy_not9
+    jmp moveEnemy9
+moveEnemy_not9:
+    cmp #$0a
+    bne moveEnemy_notA
+    jmp moveEnemyA
+moveEnemy_notA:
 moveEnemy_isFF:
     jmp moveEnemyFF
 moveEnemy_next:
@@ -962,6 +970,206 @@ moveEnemy8_erase:
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
+; 敵9 (右方向へ動くカニ)
+;------------------------------------------------------------
+moveEnemy9:
+    ; 行動フラグをチェック
+    lda v_enemy_i + 0, x
+    bne moveEnemy9_jump
+
+    ; 待機行動 (32フレーム)
+    lda v_enemy_i + 1, x
+    clc
+    adc #$01
+    sta v_enemy_i + 1, x
+    and #$1f
+    bne moveEnemy9_hitCheck
+    ; 待機解除 (ジャンプに遷移)
+    lda #$01
+    sta v_enemy_i + 0, x
+    lda #$f8
+    sta v_enemy_i + 1, x
+    lda #$3c
+    sta sp_enemyT0, x
+    lda #$3e
+    sta sp_enemyT1, x
+moveEnemy9_hitCheck:
+    ; ショットとの当たり判定
+    lda v_shotF
+    beq moveEnemy9_noHit
+    lda v_shotY
+    cmp v_enemy_y, x
+    bcs moveEnemy9_noHit
+    adc #$10
+    cmp v_enemy_y, x
+    bcc moveEnemy9_noHit
+    lda v_shotX
+    adc #$07
+    cmp v_enemy_x, x
+    bcc moveEnemy9_noHit
+    lda v_enemy_x, x
+    adc #$10
+    cmp v_shotX
+    bcc moveEnemy9_noHit
+    jmp moveEnemy9_destruct
+moveEnemy9_noHit:
+    jmp moveEnemy_next
+
+    ; ジャンプしながら進行
+moveEnemy9_jump:
+    ; X座標を更新 (カニは破壊するまで居座り続ける)
+    lda v_enemy_x, x
+    clc
+    adc #$02
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    clc
+    adc #$08
+    sta sp_enemyX1, x
+    ; Y座標を更新
+    lda v_enemy_y, x
+    adc v_enemy_i + 1, x
+    sta v_enemy_y, x
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    ; 地面に着いたら再び待機モードに戻る
+    cmp #208
+    bcs moveEnemy9_endJump
+    ; 重力処理
+    ldy v_enemy_i + 1, x
+    iny
+    sty v_enemy_i + 1, x
+    jmp moveEnemy9_hitCheck
+moveEnemy9_endJump:
+    lda #$00
+    sta v_enemy_i + 0, x
+    sta v_enemy_i + 1, x
+    lda #$2c
+    sta sp_enemyT0, x
+    lda #$2e
+    sta sp_enemyT1, x
+    jmp moveEnemy9_hitCheck
+
+moveEnemy9_destruct:
+    ; 爆発
+    lda #$00
+    sta v_shotF
+    sta sp_shotT
+    sta sp_shotY
+    lda #$ff
+    sta v_enemy_f, x
+    lda #$00
+    sta v_enemy_i + 0, x
+    lda #$01
+    sta sp_enemyA0, x
+    sta sp_enemyA1, x
+    lda #$40
+    sta sp_enemyT0, x
+    lda #$50
+    sta sp_enemyT1, x
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
+; 敵A (左方向へ動くカニ)
+;------------------------------------------------------------
+moveEnemyA:
+    ; 行動フラグをチェック
+    lda v_enemy_i + 0, x
+    bne moveEnemyA_jump
+
+    ; 待機行動 (32フレーム)
+    lda v_enemy_i + 1, x
+    clc
+    adc #$01
+    sta v_enemy_i + 1, x
+    and #$1f
+    bne moveEnemyA_hitCheck
+    ; 待機解除 (ジャンプに遷移)
+    lda #$01
+    sta v_enemy_i + 0, x
+    lda #$f8
+    sta v_enemy_i + 1, x
+    lda #$3c
+    sta sp_enemyT0, x
+    lda #$3e
+    sta sp_enemyT1, x
+moveEnemyA_hitCheck:
+    ; ショットとの当たり判定
+    lda v_shotF
+    beq moveEnemyA_noHit
+    lda v_shotY
+    cmp v_enemy_y, x
+    bcs moveEnemyA_noHit
+    adc #$10
+    cmp v_enemy_y, x
+    bcc moveEnemyA_noHit
+    lda v_shotX
+    adc #$07
+    cmp v_enemy_x, x
+    bcc moveEnemyA_noHit
+    lda v_enemy_x, x
+    adc #$10
+    cmp v_shotX
+    bcc moveEnemyA_noHit
+    jmp moveEnemyA_destruct
+moveEnemyA_noHit:
+    jmp moveEnemy_next
+
+    ; ジャンプしながら進行
+moveEnemyA_jump:
+    ; X座標を更新 (カニは破壊するまで居座り続ける)
+    lda v_enemy_x, x
+    clc
+    sbc #$02
+    sta v_enemy_x, x
+    sta sp_enemyX0, x
+    clc
+    adc #$08
+    sta sp_enemyX1, x
+    ; Y座標を更新
+    lda v_enemy_y, x
+    adc v_enemy_i + 1, x
+    sta v_enemy_y, x
+    sta sp_enemyY0, x
+    sta sp_enemyY1, x
+    ; 地面に着いたら再び待機モードに戻る
+    cmp #208
+    bcs moveEnemyA_endJump
+    ; 重力処理
+    ldy v_enemy_i + 1, x
+    iny
+    sty v_enemy_i + 1, x
+    jmp moveEnemyA_hitCheck
+moveEnemyA_endJump:
+    lda #$00
+    sta v_enemy_i + 0, x
+    sta v_enemy_i + 1, x
+    lda #$2c
+    sta sp_enemyT0, x
+    lda #$2e
+    sta sp_enemyT1, x
+    jmp moveEnemyA_hitCheck
+
+moveEnemyA_destruct:
+    ; 爆発
+    lda #$00
+    sta v_shotF
+    sta sp_shotT
+    sta sp_shotY
+    lda #$ff
+    sta v_enemy_f, x
+    lda #$00
+    sta v_enemy_i + 0, x
+    lda #$01
+    sta sp_enemyA0, x
+    sta sp_enemyA1, x
+    lda #$40
+    sta sp_enemyT0, x
+    lda #$50
+    sta sp_enemyT1, x
+    jmp moveEnemy_next
+
+;------------------------------------------------------------
 ; 敵FF (爆発エフェクト)
 ;------------------------------------------------------------
 moveEnemyFF:
@@ -1005,7 +1213,18 @@ moveEnemyFF:
     beq moveEnemyFF_addSeagull
     cmp #$0c ; 12/15のタイミングでカモメ追加を試行
     beq moveEnemyFF_addSeagull
+    cmp #$0f ; 15/15のタイミングでカニ追加を試行
+    beq moveEnemyFF_addClub
     bne moveEnemyFF_skipSE
+
+moveEnemyFF_addClub:
+    ; カニを追加
+    tya ; yを使いたいのでスタックに退避しておく
+    pha
+    jsr moveEnemy_addClub
+    pla
+    tay
+    jmp moveEnemyFF_skipSE
 
 moveEnemyFF_addSeagull:
     ; カモメを追加
@@ -1106,7 +1325,7 @@ moveEnemy_newUnk_start_ok:
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
-; 16回サイクルの爆発の8回目でカモメを追加 (方向はランダム)
+; カモメを追加 (方向はランダム)
 ;------------------------------------------------------------
 moveEnemy_addSeagull:
     ; インデックスを加算
@@ -1174,5 +1393,80 @@ moveEnemy_addSeagull_toLeft:
     lda #$a0
     sta sp_enemyT0, y
     lda #$a4
+    sta sp_enemyT1, y
+    rts
+
+;------------------------------------------------------------
+; カニを追加 (方向はランダム)
+;------------------------------------------------------------
+moveEnemy_addClub:
+    ; インデックスを加算
+    lda v_enemy_idx
+    clc
+    adc #$04
+    and #$1f
+    sta v_enemy_idx
+    tay
+    lda v_enemy_f, y
+    beq moveEnemy_addClub_ok
+    rts
+moveEnemy_addClub_ok:
+    lda v_counter
+    and #$01
+    beq moveEnemy_addClub_toLeft
+moveEnemy_addClub_toRight:
+    lda #$09
+    sta v_enemy_f, y
+    ; X座標
+    lda #$00
+    sta v_enemy_x, y
+    sta sp_enemyX0, y
+    clc
+    adc #$08
+    sta sp_enemyX1, y
+    ; Y座標
+    lda #208
+    sta v_enemy_y, y
+    sta sp_enemyY0, y
+    sta sp_enemyY1, y
+    ; 使用するフラグを初期化
+    lda #$00
+    sta v_enemy_i + 0, y
+    sta v_enemy_i + 1, y
+    lda #$01
+    sta sp_enemyA0, y
+    sta sp_enemyA1, y
+    ; スプライトパターン設定
+    lda #$2c
+    sta sp_enemyT0, y
+    lda #$2e
+    sta sp_enemyT1, y
+    rts
+moveEnemy_addClub_toLeft:
+    lda #$0a
+    sta v_enemy_f, y
+    ; X座標
+    lda #240
+    sta v_enemy_x, y
+    sta sp_enemyX0, y
+    clc
+    adc #$08
+    sta sp_enemyX1, y
+    ; Y座標
+    lda #208
+    sta v_enemy_y, y
+    sta sp_enemyY0, y
+    sta sp_enemyY1, y
+    ; 使用するフラグを初期化
+    lda #$00
+    sta v_enemy_i + 0, y
+    sta v_enemy_i + 1, y
+    lda #$01
+    sta sp_enemyA0, y
+    sta sp_enemyA1, y
+    ; スプライトパターン設定
+    lda #$2c
+    sta sp_enemyT0, y
+    lda #$2e
     sta sp_enemyT1, y
     rts
