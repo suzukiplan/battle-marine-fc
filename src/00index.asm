@@ -104,24 +104,24 @@ v_enemy_f:  .byte   $00     ; 0a: enemy0 - flag & type
 v_enemy_x:  .byte   $00     ; 0b: enemy0 - x
 v_enemy_y:  .byte   $00     ; 0c: enemy0 - y
 v_enemy_si: .byte   $00     ; 0d: enemy0 - sprite index
-v_enemy1:   .byte   $00, $00, $00, $00
-v_enemy2:   .byte   $00, $00, $00, $00
-v_enemy3:   .byte   $00, $00, $00, $00
-v_enemy4:   .byte   $00, $00, $00, $00
-v_enemy5:   .byte   $00, $00, $00, $00
-v_enemy6:   .byte   $00, $00, $00, $00
-v_enemy7:   .byte   $00, $00, $00, $00
-v_enemy_i:  .byte   $00, $00, $00, $00
-v_enemy1_i: .byte   $00, $00, $00, $00
-v_enemy2_i: .byte   $00, $00, $00, $00
-v_enemy3_i: .byte   $00, $00, $00, $00
-v_enemy4_i: .byte   $00, $00, $00, $00
-v_enemy5_i: .byte   $00, $00, $00, $00
-v_enemy6_i: .byte   $00, $00, $00, $00
-v_enemy7_i: .byte   $00, $00, $00, $00
+v_enemy1:   .byte   $00, $00, $00, $00 ; 0e ~ 11
+v_enemy2:   .byte   $00, $00, $00, $00 ; 12 ~ 15
+v_enemy3:   .byte   $00, $00, $00, $00 ; 16 ~ 19
+v_enemy4:   .byte   $00, $00, $00, $00 ; 1a ~ 1d
+v_enemy5:   .byte   $00, $00, $00, $00 ; 1e ~ 21
+v_enemy6:   .byte   $00, $00, $00, $00 ; 22 ~ 25
+v_enemy7:   .byte   $00, $00, $00, $00 ; 26 ~ 29
+v_enemy_i:  .byte   $00, $00, $00, $00 ; 2a ~ 2d
+v_enemy1_i: .byte   $00, $00, $00, $00 ; 2e ~ 31
+v_enemy2_i: .byte   $00, $00, $00, $00 ; 32 ~ 35
+v_enemy3_i: .byte   $00, $00, $00, $00 ; 36 ~ 39
+v_enemy4_i: .byte   $00, $00, $00, $00 ; 3a ~ 3d
+v_enemy5_i: .byte   $00, $00, $00, $00 ; 3e ~ 41
+v_enemy6_i: .byte   $00, $00, $00, $00 ; 42 ~ 45
+v_enemy7_i: .byte   $00, $00, $00, $00 ; 46 ~ 49
 v_rand_idx: .byte   $00     ; 4a: 乱数index
 v_enemy_idx:.byte   $00     ; 4b: 敵index
-v_work:     .byte   $00, $00, $00, $00 ; 4c-4f: 汎用ワーク変数
+v_work:     .byte   $00, $00, $00, $00 ; 4c ~ 4f: 汎用ワーク変数
 v_sb_exist: .byte   $00, $00, $00, $00, $00, $00, $00, $00 ; 50-57: 潜水艦のY座標重複防止フラグ
 v_et_idx:   .byte   $00     ; 58: 敵テーブルのインデックス
 v_push:     .byte   $00     ; 59: ボタン押し込みフラグ
