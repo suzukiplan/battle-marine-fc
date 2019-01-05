@@ -48,24 +48,6 @@ init_clear_ram0:
     lda #$00
     sta v_hi + 2
 
-    ; make palette table
-    lda #$3f
-    sta $2006
-    lda #$00
-    sta $2006
-    ldx #$00
-    ldy #$20
-copy_pal:
-    lda palettes, x
-    sta $2007
-    inx
-    dey
-    bne copy_pal
-
-    ; initialize APU
-    lda #%00001111
-    sta $4015
-
 .include "01title.asm"
 .include "02setup.asm"
 .include "03mainloop.asm"
@@ -89,6 +71,9 @@ string_push_start:
 
 string_copyright:
     .byte   "(C)2019, SUZUKI PLAN"
+
+string_game_over:
+    .byte   "GAME  OVER"
 
 palettes:
     ; BG
@@ -193,6 +178,8 @@ v_sc1000000:.byte   $00     ; 65: スコア(1000000の位)
 v_sc:       .byte   $00, $00, $00 ; 66-69: スコア数値
 v_hi_update:.byte   $00     ; 6a: ハイスコア更新フラグ
 v_push_start:.byte  $00     ; 6b: PUSH STARTを点滅させるフラグ
+v_gameOverD:.byte   $00     ; 6c: GAME OVER描画フラグ
+v_return_timer: .byte $00   ; 6d: タイトル画面への復帰タイマー
 
 .org $0080
 v_hi10:     .byte   $00     ; 80: ハイスコア(10の位)

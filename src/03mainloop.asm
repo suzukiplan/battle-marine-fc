@@ -2,6 +2,15 @@
 ; メインループ
 ;------------------------------------------
 mainloop:
+    ; タイトルへの復帰判定
+    ldx v_return_timer
+    beq mainloop_notReturn
+    dex
+    stx v_return_timer
+    bne mainloop_notReturn
+    jmp title
+mainloop_notReturn:
+
     ; メダル数の変化値をメダル数に合わせておく
     lda v_medal
     sta v_medal_cnt
@@ -49,6 +58,7 @@ mainloop_playerBomb:
 mainloop_playerBombEnd:
     lda #$02
     sta v_gameOver
+    sta v_gameOverD
     lda #$00
     sta sp_playerT
     sta sp_playerT + 4
@@ -218,6 +228,33 @@ mainloop_medalNotChanged:
     sta $2005
     jmp mainloop
 mainloop_scoreNotAdded:
+
+    ; GAME OVER
+    lda v_gameOverD
+    beq mainloop_notGameOverDraw
+    lda #$00
+    sta v_gameOverD
+    lda #$20
+    sta $2006
+    lda #$cb
+    sta $2006
+    ldy #$00
+    ldx #$0a
+mainloop_drawGameOver:
+    lda string_game_over, y
+    sta $2007
+    iny
+    dex
+    bne mainloop_drawGameOver
+    ; 復帰タイマーを設定
+    lda #$a0
+    sta v_return_timer
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+    jmp mainloop
+mainloop_notGameOverDraw:
 
     jmp mainloop
 

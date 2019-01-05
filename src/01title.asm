@@ -7,6 +7,24 @@ title:
     sta $2000
     sta $2001
 
+    ; make palette table
+    lda #$3f
+    sta $2006
+    lda #$00
+    sta $2006
+    ldx #$00
+    ldy #$20
+copy_pal:
+    lda palettes, x
+    sta $2007
+    inx
+    dey
+    bne copy_pal
+
+    ; initialize APU
+    lda #%00001111
+    sta $4015
+
     ; 3 page
     lda #$00
     ldx #$00
