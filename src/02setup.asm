@@ -30,6 +30,10 @@ setup_clear_ram:
     inx
     bne setup_clear_ram
 
+    ; GET READYタイマーを設定
+    lda #$80
+    sta v_ready_timer
+
     ; プレイヤの座標初期化
     lda #$74
     sta v_playerX

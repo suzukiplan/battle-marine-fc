@@ -26,7 +26,13 @@ mainloop_notReturn:
     inx
     stx v_counter
 
-    ; 16フレームに1回敵を出す
+    ; 16フレームに1回敵を出す (ただし ready timer がセットされている間は抑止)
+    ldy v_ready_timer
+    beq mainloop_ready
+    dey
+    sty v_ready_timer
+    bne mainloop_addNewEnemy_end
+mainloop_ready:
     txa
     and #$0f
     bne mainloop_addNewEnemy_end
@@ -228,6 +234,52 @@ mainloop_medalNotChanged:
     sta $2005
     jmp mainloop
 mainloop_scoreNotAdded:
+
+    ; GET READY
+    lda v_ready_timer
+    beq mainloop_notGetReady
+    cmp #$5f
+    beq mainloop_drawGetReady
+    cmp #$01
+    beq mainloop_clearGetReady
+    beq mainloop_notGetReady
+mainloop_drawGetReady:
+    ; GET READYを表示
+    lda #$20
+    sta $2006
+    lda #$cb
+    sta $2006
+    ldy #$00
+    ldx #$0a
+mainloop_drawGetReadyLoop:
+    lda string_get_ready, y
+    sta $2007
+    iny
+    dex
+    bne mainloop_drawGetReadyLoop
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+    jmp mainloop
+mainloop_clearGetReady:
+    ; GET READYを消す
+    lda #$20
+    sta $2006
+    lda #$cb
+    sta $2006
+    ldx #$0a
+    lda #$00
+mainloop_clearGetReadyLoop:
+    sta $2007
+    dex
+    bne mainloop_clearGetReadyLoop
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+    jmp mainloop
+mainloop_notGetReady:
 
     ; GAME OVER
     lda v_gameOverD

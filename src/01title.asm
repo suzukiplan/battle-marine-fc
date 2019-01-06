@@ -230,3 +230,11 @@ title_loop_draw2L:
     jmp title_loop
 
 title_end:
+    ; scroll setting
+    lda #$00
+    sta $2005
+    sta $2005
+title_end_wait:
+    lda $2002
+    bpl title_end_wait ; wait for vBlank
+

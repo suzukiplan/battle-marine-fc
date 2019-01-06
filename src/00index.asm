@@ -72,6 +72,9 @@ string_push_start:
 string_copyright:
     .byte   "(C)2019, SUZUKI PLAN"
 
+string_get_ready:
+    .byte   "GET READY!"
+
 string_game_over:
     .byte   "GAME  OVER"
 
@@ -180,6 +183,7 @@ v_hi_update:.byte   $00     ; 6a: ハイスコア更新フラグ
 v_push_start:.byte  $00     ; 6b: PUSH STARTを点滅させるフラグ
 v_gameOverD:.byte   $00     ; 6c: GAME OVER描画フラグ
 v_return_timer: .byte $00   ; 6d: タイトル画面への復帰タイマー
+v_ready_timer:.byte $00     ; 6e: GET READY タイマー
 
 .org $0080
 v_hi10:     .byte   $00     ; 80: ハイスコア(10の位)
