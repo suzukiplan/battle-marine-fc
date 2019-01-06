@@ -80,7 +80,7 @@ mainloop_endGameOver:
     ; 粉塵のアニメーション
 mainloop_dust:
     lda v_dust
-    beq mainloop_dustE
+    beq mainloop_dustEnd
     clc
     adc #$01
     and #%00011111
@@ -96,11 +96,31 @@ mainloop_dust:
 mainloop_dustErase:
     sta sp_dustT
     sta sp_dustT + 4
+mainloop_dustEnd:
+
+    ; ノイズ効果音 (水しぶき)
+    ldx v_noise
+    beq mainloop_noNoise
+    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
+    lda #%00011111
+    sta $400C
+    ;     r---ssss (r=乱数種別, s=サンプリングレート)
+    lda noise_table, x
+    sta $400E
+    ;     ttttt--- (t=再生時間)
+    lda #%01111111
+    sta $400F
+    ; テーブルインデックスを進める
+    inx
+    txa
+    and #$0f
+    sta v_noise
+mainloop_noNoise:
 
     ; 水しぶきのアニメーション
 mainloop_dustE:
     lda v_dustE
-    beq mainloop_shot
+    beq v_dustEEnd
     clc
     adc #$01
     and #%00011111
@@ -118,6 +138,7 @@ mainloop_dustEErase:
     sta sp_dustEY
     sta sp_dustET + 4
     sta sp_dustEY + 4
+v_dustEEnd:
 
     ; プレイヤのショットを動かす
 mainloop_shot:

@@ -394,18 +394,8 @@ moveEnemy3_notErase:
     sta sp_dustEX + 4
     lda #$01
     sta v_dustE
+    sta v_noise
     sta v_enemy_i + 2, x
-
-    ; play SE1 (ノイズを使う)
-    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
-    lda #%00011111
-    sta $400C
-    ;     r---ssss (r=乱数種別, s=サンプリングレート)
-    lda #%01100001
-    sta $400E
-    ;     ttttt--- (t=再生時間)
-    lda #%00111111
-    sta $400F
 
     ; 自機との当たり判定 (xのみで行う)
     lda v_gameOver
@@ -609,17 +599,8 @@ moveEnemy4_splash:
     sta sp_dustEX + 4
     lda #$01
     sta v_dustE
+    sta v_noise
     sta v_enemy_i + 2, x
-    ; play SE1 (ノイズを使う)
-    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
-    lda #%00011111
-    sta $400C
-    ;     r---ssss (r=乱数種別, s=サンプリングレート)
-    lda #%01100001
-    sta $400E
-    ;     ttttt--- (t=再生時間)
-    lda #%00111111
-    sta $400F
     jmp moveEnemy4_checkGameOver
 moveEnemy4_jump_noSplash:
     cmp #$20
@@ -815,17 +796,8 @@ moveEnemy5_splash:
     sta sp_dustEX + 4
     lda #$01
     sta v_dustE
+    sta v_noise
     sta v_enemy_i + 2, x
-    ; play SE1 (ノイズを使う)
-    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
-    lda #%00011111
-    sta $400C
-    ;     r---ssss (r=乱数種別, s=サンプリングレート)
-    lda #%01100001
-    sta $400E
-    ;     ttttt--- (t=再生時間)
-    lda #%00111111
-    sta $400F
     jmp moveEnemy5_checkGameOver
 moveEnemy5_jump_noSplash:
     cmp #$20
@@ -1028,17 +1000,7 @@ moveEnemy8_erase:
     sta sp_dustEX + 4
     lda #$01
     sta v_dustE
-    sta v_enemy_i + 2, x
-    ; play SE1 (ノイズを使う)
-    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
-    lda #%00011111
-    sta $400C
-    ;     r---ssss (r=乱数種別, s=サンプリングレート)
-    lda #%01100001
-    sta $400E
-    ;     ttttt--- (t=再生時間)
-    lda #%00111111
-    sta $400F
+    sta v_noise
     jmp moveEnemy_next
 
 ;------------------------------------------------------------
@@ -1335,18 +1297,8 @@ moveEnemyB_notErase:
     sta sp_dustEX + 4
     lda #$01
     sta v_dustE
+    sta v_noise
     sta v_enemy_i + 2, x
-
-    ; play SE1 (ノイズを使う)
-    ;     --cevvvv (c=再生時間カウンタ, e=effect, v=volume)
-    lda #%00011111
-    sta $400C
-    ;     r---ssss (r=乱数種別, s=サンプリングレート)
-    lda #%01100001
-    sta $400E
-    ;     ttttt--- (t=再生時間)
-    lda #%00111111
-    sta $400F
 
     ; 自機との当たり判定 (xのみで行う)
     lda v_gameOver
