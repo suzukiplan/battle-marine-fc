@@ -185,8 +185,10 @@ mainloop_eraseShot:
     ;     ttttt--- (t=再生時間)
     lda #%11111000
     sta $400F
-    ; メダルを全て失う
-    lda #$00
+    ; メダルを半減させる
+    lda v_medal_cnt
+    and #$fe
+    lsr
     sta v_medal_cnt
 
     ; ゲームオーバー中でなければプレイヤの移動処理を実行
