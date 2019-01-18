@@ -322,7 +322,7 @@ mainloop_drawGameOver:
     dex
     bne mainloop_drawGameOver
     ; 復帰タイマーを設定
-    lda #$a0
+    lda #$60
     sta v_return_timer
     ; scroll setting
     lda #$00
