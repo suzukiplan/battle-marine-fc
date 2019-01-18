@@ -246,6 +246,8 @@ mainloop_drawMedalEnd:
 mainloop_medalNotChanged:
 
     ; スコア更新
+    lda v_gameOver
+    bne mainloop_scoreNotAdded
     ldx v_sc_plus
     beq mainloop_scoreNotAdded
     dex
