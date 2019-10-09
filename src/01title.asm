@@ -107,16 +107,29 @@ draw_title_kaisen:
 
     lda #$22
     sta $2006
-    lda #$ab
+    lda #$8c
     sta $2006
     ldy #$00
-    ldx #$0a
-draw_title_push_start:
-    lda string_push_start, y
+    ldx #$08
+draw_1player:
+    lda string_1player, y
     sta $2007
     iny
     dex
-    bne draw_title_push_start
+    bne draw_1player
+
+    lda #$22
+    sta $2006
+    lda #$cc
+    sta $2006
+    ldy #$00
+    ldx #$09
+draw_2players:
+    lda string_2players, y
+    sta $2007
+    iny
+    dex
+    bne draw_2players
 
     lda #$23
     sta $2006
@@ -130,7 +143,7 @@ draw_title_copyright:
     iny
     dex
     bne draw_title_copyright
-
+    jsr title_draw_cursor
     ; scroll setting
     lda #$00
     sta $2005
@@ -158,16 +171,9 @@ draw_title_copyright:
     lda #%00011110
     sta $2001
 
-    lda #$00
-    sta v_push_start
 title_loop:
-    ; カウンタをインクリメントしておく
-    lda v_push_start
-    clc
-    adc #$01
-    and #$3f
-    sta v_push_start
-
+    lda $2002
+    bpl title_loop ; wait for vBlank
     ; clear joy-pad
     lda #$01
     sta $4016
@@ -176,58 +182,80 @@ title_loop:
     lda $4016   ; A
     lda $4016   ; B 
     lda $4016   ; SELECT
+    and #$01
+    beq title_loop2
+    lda v_play_mode_s
+    bne title_loop2_1
+    jsr title_change_play_mode
+    jmp title_loop2_1
+title_loop2:
+    lda #$00
+    sta v_play_mode_s
+title_loop2_1:
     lda $4016   ; START
     and #$01
-    beq title_wait_vBlank
+    beq title_loop3
     jmp title_end
-title_wait_vBlank:
-    lda $2002
-    bpl title_wait_vBlank ; wait for vBlank
+title_loop3:
     lda #$3
     sta $4014
-
-    lda v_push_start
-    cmp #$00
-    beq title_loop_draw1
-    cmp #$20
-    beq title_loop_draw2
-    jmp title_loop
-
-title_loop_draw1:
-    lda #$22
-    sta $2006
-    lda #$ab
-    sta $2006
-    ldy #$00
-    ldx #$0a
-title_loop_draw1L:
-    lda string_push_start, y
-    sta $2007
-    iny
-    dex
-    bne title_loop_draw1L
     ; scroll setting
     lda #$00
     sta $2005
     sta $2005
     jmp title_loop
 
-title_loop_draw2:
+title_draw_cursor:
+    ldx v_play_mode
+    beq title_draw_cursor_1P
+    jmp title_draw_cursor_2P
+title_draw_cursor_1P:
+    ; 1 PLAYER
     lda #$22
     sta $2006
-    lda #$ab
+    lda #$8b
     sta $2006
-    ldx #$0a
-    lda #$00
-title_loop_draw2L:
+    lda #$3E
     sta $2007
-    dex
-    bne title_loop_draw2L
-    ; scroll setting
+    ; 2 PLAYERS
+    lda #$22
+    sta $2006
+    lda #$cb
+    sta $2006
     lda #$00
-    sta $2005
-    sta $2005
-    jmp title_loop
+    sta $2007
+    rts
+title_draw_cursor_2P:
+    ; 1 PLAYER
+    lda #$22
+    sta $2006
+    lda #$8b
+    sta $2006
+    lda #$00
+    sta $2007
+    ; 2 PLAYERS
+    lda #$22
+    sta $2006
+    lda #$cb
+    sta $2006
+    lda #$3E
+    sta $2007
+    rts
+
+title_change_play_mode:
+    lda #$01
+    sta v_play_mode_s
+    lda v_play_mode
+    beq title_change_play_mode_2P
+    lda #$00
+    sta v_play_mode
+    jsr title_draw_cursor
+    rts
+title_change_play_mode_2P:
+    lda #$01
+    sta v_play_mode
+    jsr title_draw_cursor
+    rts
 
 title_end:
     ; scroll setting

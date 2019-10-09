@@ -35,7 +35,13 @@ setup_clear_ram:
     sta v_ready_timer
 
     ; プレイヤの座標初期化
+    lda v_play_mode
+    beq setup_player1_1
+    lda #$20
+    jmp setup_player1_2
+setup_player1_1:
     lda #$74
+setup_player1_2:
     sta v_playerX
     sta sp_playerX
     clc
