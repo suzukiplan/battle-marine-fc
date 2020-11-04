@@ -158,7 +158,7 @@ sub_addScore10000_display:
     sta v_sc10000
     lda #$20
     sta $2006
-    lda #$09
+    lda #$29
     sta $2006
     lda v_sc10000
     clc
